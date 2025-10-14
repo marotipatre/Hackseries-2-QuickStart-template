@@ -46,7 +46,7 @@ const Home: React.FC<HomeProps> = () => {
       <div className="flex items-center justify-center min-h-screen px-4">
         <div className="backdrop-blur-md bg-white/70 rounded-2xl p-8 shadow-xl max-w-5xl w-full">
           <h1 className="text-4xl font-extrabold text-teal-700 mb-6 text-center">Algorand Workshop Template</h1>
-          <p className="text-gray-700 mb-8 text-center">A Web3-styled dashboard to try common Algorand operations.</p>
+          <p className="text-gray-700 mb-8 text-center">Algorand operations in one-place.</p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <div className="card bg-gradient-to-br from-sky-500 to-cyan-500 text-white shadow-xl">

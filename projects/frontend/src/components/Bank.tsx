@@ -325,10 +325,18 @@ const Bank = ({ openModal, closeModal }: BankProps) => {
             ) : (
               <ul className="text-sm">
                 {statements.map((s) => (
-                  <li key={s.id} className="py-1 flex justify-between border-b last:border-0">
+                  <li key={s.id} className="py-1 flex justify-between items-center border-b last:border-0">
                     <span className={s.type === 'deposit' ? 'text-emerald-600' : 'text-amber-700'}>{s.type}</span>
                     <span>round {s.round}</span>
-                    <span>{s.amount} Algos</span>
+                    {/* <span>{s.amount} Algos</span> */}
+                    <a 
+                      href={`https://lora.algokit.io/testnet/transaction/${s.id}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:text-blue-800 underline text-xs"
+                    >
+                      View
+                    </a>
                   </li>
                 ))}
               </ul>
