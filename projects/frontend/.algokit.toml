@@ -1,0 +1,12 @@
+[algokit]
+min_version = "v2.0.0"
+
+[project]
+type = "frontend"
+name = 'OnChain-Counter-frontend'
+artifacts = "src/contracts"
+
+[project.run]
+build = { commands = ['pnpm run build'], description = 'Build frontend' }
+test = { commands = ['pnpm run test'], description = 'Run frontend tests' }
+lint = { commands = ['pnpm run lint'], description = 'Lint frontend code' }

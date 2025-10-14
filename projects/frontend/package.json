@@ -40,6 +40,7 @@
     "@perawallet/connect": "^1.4.1",
     "@txnlab/use-wallet": "^4.0.0",
     "@txnlab/use-wallet-react": "^4.0.0",
+    "lute-connect": "^1.6.2",
     "algosdk": "^3.0.0",
     "daisyui": "^4.0.0",
     "notistack": "^3.0.1",

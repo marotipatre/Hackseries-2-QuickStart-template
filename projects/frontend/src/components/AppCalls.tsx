@@ -1,8 +1,7 @@
 import { useWallet } from '@txnlab/use-wallet-react'
 import { useSnackbar } from 'notistack'
-import { useState } from 'react'
-import { CounterFactory, CounterClient } from '../contracts/Counter'
-import { OnSchemaBreak, OnUpdate } from '@algorandfoundation/algokit-utils/types/app'
+import { useEffect, useState } from 'react'
+import { CounterClient } from '../contracts/Counter'
 import { getAlgodConfigFromViteEnvironment, getIndexerConfigFromViteEnvironment } from '../utils/network/getAlgoClientConfigs'
 import { AlgorandClient } from '@algorandfoundation/algokit-utils'
 
@@ -13,8 +12,9 @@ interface AppCallsInterface {
 
 const AppCalls = ({ openModal, setModalState }: AppCallsInterface) => {
   const [loading, setLoading] = useState<boolean>(false)
-  const [deploying, setDeploying] = useState<boolean>(false)
-  const [appId, setAppId] = useState<number | null>(null)
+  // Fixed deployed application ID so users don't need to deploy repeatedly
+  const FIXED_APP_ID = 747652603
+  const [appId, setAppId] = useState<number | null>(FIXED_APP_ID)
   const [currentCount, setCurrentCount] = useState<number>(0)
   const { enqueueSnackbar } = useSnackbar()
   const { activeAccount, activeAddress, transactionSigner: TransactionSigner } = useWallet()
@@ -47,48 +47,49 @@ const AppCalls = ({ openModal, setModalState }: AppCallsInterface) => {
     }
   }
 
-  const deployContract = async () => {
-    setDeploying(true)
-    try {
-      const factory = new CounterFactory({
-        defaultSender: activeAddress ?? undefined,
-        algorand,
-      })
-      
-      
-      // Deploy multiple addresses with the same contract
-      const deployResult = await factory.send.create.bare()
+  // Deploy function kept for future use; commented out per request
+  // const [deploying, setDeploying] = useState<boolean>(false)
+  // const deployContract = async () => {
+  //   setDeploying(true)
+  //   try {
+  //     const factory = new CounterFactory({
+  //       defaultSender: activeAddress ?? undefined,
+  //       algorand,
+  //     })
+  //     // Deploy multiple addresses with the same contract
+  //     const deployResult = await factory.send.create.bare()
+  //     // If you want idempotent deploy from one address
+  //     // const deployResult = await factory.deploy({
+  //     //   onSchemaBreak: OnSchemaBreak.AppendApp,
+  //     //   onUpdate: OnUpdate.AppendApp,
+  //     // })
+  //     const deployedAppId = Number(deployResult.appClient.appId)
+  //     setAppId(deployedAppId)
+  //     const count = await fetchCount(deployedAppId)
+  //     setCurrentCount(count)
+  //     enqueueSnackbar(`Contract deployed with App ID: ${deployedAppId}. Initial count: ${count}`, { variant: 'success' })
+  //   } catch (e) {
+  //     enqueueSnackbar(`Error deploying contract: ${(e as Error).message}`, { variant: 'error' })
+  //   } finally {
+  //     setDeploying(false)
+  //   }
+  // }
 
-      // Use When you want to deploy application once from one address
-      // const deployResult = await factory.deploy({
-      //   onSchemaBreak: OnSchemaBreak.AppendApp,
-      //   onUpdate: OnUpdate.AppendApp,})
-
-
-
-      // if i have added create = require to any method , use this to deploy contract
-      // const deployResult = await factory.send.create.create()
-      
-      const deployedAppId = Number(deployResult.appClient.appId)
-      setAppId(deployedAppId)
-      
-      // Fetch and set initial count after deployment
-      const count = await fetchCount(deployedAppId)
-      setCurrentCount(count)
-      
-      enqueueSnackbar(`Contract deployed with App ID: ${deployedAppId}. Initial count: ${count}`, { 
-        variant: 'success' 
-      })
-    } catch (e) {
-      enqueueSnackbar(`Error deploying contract: ${(e as Error).message}`, { variant: 'error' })
-    } finally {
-      setDeploying(false)
+  // Auto-load current count for the fixed app ID
+  useEffect(() => {
+    const load = async () => {
+      if (appId) {
+        const count = await fetchCount(appId)
+        setCurrentCount(count)
+      }
     }
-  }
+    void load()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [appId, TransactionSigner])
 
   const incrementCounter = async () => {
     if (!appId) {
-      enqueueSnackbar('Please deploy contract first', { variant: 'error' })
+      enqueueSnackbar('Missing App ID', { variant: 'error' })
       return
     }
 
@@ -131,6 +132,7 @@ const AppCalls = ({ openModal, setModalState }: AppCallsInterface) => {
             </div>
           )}
           
+          {/*
           <div className="flex flex-col gap-2">
             <button 
               className={`btn btn-primary ${deploying ? 'loading' : ''}`}
@@ -143,6 +145,7 @@ const AppCalls = ({ openModal, setModalState }: AppCallsInterface) => {
           </div>
           
           <div className="divider">OR</div>
+          */}
           
           <div className="flex flex-col gap-2">
             <button 
@@ -159,7 +162,7 @@ const AppCalls = ({ openModal, setModalState }: AppCallsInterface) => {
             <button 
               className="btn" 
               onClick={() => setModalState(false)}
-              disabled={loading || deploying}
+              disabled={loading}
             >
               Close
             </button>
