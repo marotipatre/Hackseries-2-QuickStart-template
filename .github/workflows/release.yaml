@@ -1,0 +1,38 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - 'docs/**'
+      - '**.md'
+      - '.vscode/**'
+      - '.idea/**'
+
+permissions:
+  contents: read
+  packages: read
+
+jobs:
+  OnChain-Counter-contracts-validate:
+    name: Run OnChain-Counter-contracts release
+    secrets: inherit
+    uses: ./.github/workflows/OnChain-Counter-contracts-ci.yaml
+
+  OnChain-Counter-contracts-release:
+    name: Run OnChain-Counter-contracts release
+    secrets: inherit
+    uses: ./.github/workflows/OnChain-Counter-contracts-cd.yaml
+    needs: OnChain-Counter-contracts-validate
+
+  OnChain-Counter-frontend-validate:
+    name: Run OnChain-Counter-frontend release
+    secrets: inherit
+    uses: ./.github/workflows/OnChain-Counter-frontend-ci.yaml
+
+  OnChain-Counter-frontend-release:
+    name: Run OnChain-Counter-frontend release
+    secrets: inherit
+    uses: ./.github/workflows/OnChain-Counter-frontend-cd.yaml
+    needs: OnChain-Counter-frontend-validate
