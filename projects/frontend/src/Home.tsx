@@ -7,6 +7,7 @@ import SendAlgo from './components/SendAlgo'
 import MintNFT from './components/MintNFT'
 import CreateASA from './components/CreateASA'
 import AssetOptIn from './components/AssetOptIn'
+import Bank from './components/Bank'
 
 interface HomeProps {}
 
@@ -17,6 +18,7 @@ const Home: React.FC<HomeProps> = () => {
   const [mintNftModal, setMintNftModal] = useState<boolean>(false)
   const [createAsaModal, setCreateAsaModal] = useState<boolean>(false)
   const [assetOptInModal, setAssetOptInModal] = useState<boolean>(false)
+  const [bankModal, setBankModal] = useState<boolean>(false)
   const { activeAddress } = useWallet()
 
   const toggleWalletModal = () => {
@@ -103,6 +105,16 @@ const Home: React.FC<HomeProps> = () => {
                 </div>
               </div>
             </div>
+
+            <div className="card bg-gradient-to-br from-rose-500 to-red-500 text-white shadow-xl md:col-span-2 lg:col-span-1">
+              <div className="card-body">
+                <h2 className="card-title">Bank</h2>
+                <p>Deposit and withdraw ALGOs and view statements.</p>
+                <div className="card-actions justify-end">
+                  <button className="btn btn-outline" disabled={!activeAddress} onClick={() => setBankModal(true)}>Open</button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -113,6 +125,7 @@ const Home: React.FC<HomeProps> = () => {
       <MintNFT openModal={mintNftModal} closeModal={() => setMintNftModal(false)} />
       <CreateASA openModal={createAsaModal} closeModal={() => setCreateAsaModal(false)} />
       <AssetOptIn openModal={assetOptInModal} closeModal={() => setAssetOptInModal(false)} />
+      <Bank openModal={bankModal} closeModal={() => setBankModal(false)} />
     </div>
   )
 }

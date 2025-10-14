@@ -19,7 +19,7 @@ from algosdk.v2client.models import SimulateTraceConfig
 import algokit_utils
 from algokit_utils import AlgorandClient as _AlgoKitAlgorandClient
 
-_APP_SPEC_JSON = r"""{"arcs": [22, 28], "bareActions": {"call": [], "create": ["NoOp"]}, "methods": [{"actions": {"call": ["NoOp"], "create": []}, "args": [], "name": "incr_counter", "returns": {"type": "uint64"}, "events": [], "readonly": false, "recommendations": {}}], "name": "Counter", "state": {"keys": {"box": {}, "global": {"count": {"key": "Y291bnQ=", "keyType": "AVMString", "valueType": "AVMUint64"}}, "local": {}}, "maps": {"box": {}, "global": {}, "local": {}}, "schema": {"global": {"bytes": 0, "ints": 1}, "local": {"bytes": 0, "ints": 0}}}, "structs": {}, "byteCode": {"approval": "CyACAAEmAQVjb3VudDEYQAADKCJnMRtBABiABDbnKSQ2GgCOAQABADEZFDEYEERCAAgxGRQxGBQQQyIoZUQjCChLAWcWgAQVH3x1TFCwI0M=", "clear": "C4EBQw=="}, "compilerInfo": {"compiler": "puya", "compilerVersion": {"major": 5, "minor": 2, "patch": 0}}, "events": [], "networks": {}, "source": {"approval": "I3ByYWdtYSB2ZXJzaW9uIDExCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBhbGdvcHkuYXJjNC5BUkM0Q29udHJhY3QuYXBwcm92YWxfcHJvZ3JhbSgpIC0+IHVpbnQ2NDoKbWFpbjoKICAgIGludGNibG9jayAwIDEKICAgIGJ5dGVjYmxvY2sgImNvdW50IgogICAgdHhuIEFwcGxpY2F0aW9uSUQKICAgIGJueiBtYWluX2FmdGVyX2lmX2Vsc2VAMgogICAgLy8gc21hcnRfY29udHJhY3RzL2NvdW50ZXIvY29udHJhY3QucHk6MTAKICAgIC8vIHNlbGYuY291bnQgPSBVSW50NjQoMCkKICAgIGJ5dGVjXzAgLy8gImNvdW50IgogICAgaW50Y18wIC8vIDAKICAgIGFwcF9nbG9iYWxfcHV0CgptYWluX2FmdGVyX2lmX2Vsc2VAMjoKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jb3VudGVyL2NvbnRyYWN0LnB5OjUKICAgIC8vIGNsYXNzIENvdW50ZXIoQVJDNENvbnRyYWN0KToKICAgIHR4biBOdW1BcHBBcmdzCiAgICBieiBtYWluX19fYWxnb3B5X2RlZmF1bHRfY3JlYXRlQDcKICAgIHB1c2hieXRlcyAweDM2ZTcyOTI0IC8vIG1ldGhvZCAiaW5jcl9jb3VudGVyKCl1aW50NjQiCiAgICB0eG5hIEFwcGxpY2F0aW9uQXJncyAwCiAgICBtYXRjaCBtYWluX2luY3JfY291bnRlcl9yb3V0ZUA1CiAgICBlcnIKCm1haW5faW5jcl9jb3VudGVyX3JvdXRlQDU6CiAgICAvLyBzbWFydF9jb250cmFjdHMvY291bnRlci9jb250cmFjdC5weToxNgogICAgLy8gQGFiaW1ldGhvZCgpCiAgICB0eG4gT25Db21wbGV0aW9uCiAgICAhCiAgICB0eG4gQXBwbGljYXRpb25JRAogICAgJiYKICAgIGFzc2VydCAvLyBPbkNvbXBsZXRpb24gbXVzdCBiZSBOb09wICYmIGNhbiBvbmx5IGNhbGwgd2hlbiBub3QgY3JlYXRpbmcKICAgIGIgaW5jcl9jb3VudGVyCgptYWluX19fYWxnb3B5X2RlZmF1bHRfY3JlYXRlQDc6CiAgICB0eG4gT25Db21wbGV0aW9uCiAgICAhCiAgICB0eG4gQXBwbGljYXRpb25JRAogICAgIQogICAgJiYKICAgIHJldHVybiAvLyBvbiBlcnJvcjogT25Db21wbGV0aW9uIG11c3QgYmUgTm9PcCAmJiBjYW4gb25seSBjYWxsIHdoZW4gY3JlYXRpbmcKCgovLyBzbWFydF9jb250cmFjdHMuY291bnRlci5jb250cmFjdC5Db3VudGVyLmluY3JfY291bnRlcltyb3V0aW5nXSgpIC0+IHZvaWQ6CmluY3JfY291bnRlcjoKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jb3VudGVyL2NvbnRyYWN0LnB5OjE4CiAgICAvLyBzZWxmLmNvdW50ICs9IFVJbnQ2NCgxKQogICAgaW50Y18wIC8vIDAKICAgIGJ5dGVjXzAgLy8gImNvdW50IgogICAgYXBwX2dsb2JhbF9nZXRfZXgKICAgIGFzc2VydCAvLyBjaGVjayBzZWxmLmNvdW50IGV4aXN0cwogICAgaW50Y18xIC8vIDEKICAgICsKICAgIGJ5dGVjXzAgLy8gImNvdW50IgogICAgZGlnIDEKICAgIGFwcF9nbG9iYWxfcHV0CiAgICAvLyBzbWFydF9jb250cmFjdHMvY291bnRlci9jb250cmFjdC5weToxNgogICAgLy8gQGFiaW1ldGhvZCgpCiAgICBpdG9iCiAgICBwdXNoYnl0ZXMgMHgxNTFmN2M3NQogICAgc3dhcAogICAgY29uY2F0CiAgICBsb2cKICAgIGludGNfMSAvLyAxCiAgICByZXR1cm4K", "clear": "I3ByYWdtYSB2ZXJzaW9uIDExCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBhbGdvcHkuYXJjNC5BUkM0Q29udHJhY3QuY2xlYXJfc3RhdGVfcHJvZ3JhbSgpIC0+IHVpbnQ2NDoKbWFpbjoKICAgIHB1c2hpbnQgMSAvLyAxCiAgICByZXR1cm4K"}, "sourceInfo": {"approval": {"pcOffsetMethod": "none", "sourceInfo": [{"pc": [57], "errorMessage": "OnCompletion must be NoOp && can only call when creating"}, {"pc": [46], "errorMessage": "OnCompletion must be NoOp && can only call when not creating"}, {"pc": [61], "errorMessage": "check self.count exists"}]}, "clear": {"pcOffsetMethod": "none", "sourceInfo": []}}, "templateVariables": {}}"""
+_APP_SPEC_JSON = r"""{"arcs": [22, 28], "bareActions": {"call": [], "create": ["NoOp"]}, "methods": [{"actions": {"call": ["NoOp"], "create": []}, "args": [{"type": "string", "name": "memo"}, {"type": "pay", "name": "pay_txn"}], "name": "deposit", "returns": {"type": "uint64"}, "desc": "Accepts a payment into the app escrow and records sender's deposited balance", "events": [], "readonly": false, "recommendations": {}}, {"actions": {"call": ["NoOp"], "create": []}, "args": [{"type": "uint64", "name": "amount"}], "name": "withdraw", "returns": {"type": "uint64"}, "desc": "Sends ALGO back to the caller from their recorded balance", "events": [], "readonly": false, "recommendations": {}}], "name": "Bank", "state": {"keys": {"box": {}, "global": {"total_deposit": {"key": "dG90YWxfZGVwb3NpdA==", "keyType": "AVMString", "valueType": "AVMUint64"}}, "local": {}}, "maps": {"box": {"deposits": {"keyType": "address", "valueType": "uint64", "prefix": ""}}, "global": {}, "local": {}}, "schema": {"global": {"bytes": 0, "ints": 1}, "local": {"bytes": 0, "ints": 0}}}, "structs": {}, "byteCode": {"approval": "CyACAQAmAg10b3RhbF9kZXBvc2l0BBUffHUxGEAAAygjZzEbQQAdMRkURDEYRIICBJ9ZfDIEMSFBdjYaAI4CAAkAYQAxGRQxGBQQQzYaAUkjWYECCEwVEkQxFiIJSTgQIhJESTgHMgoSREk4CElOAkQ4AEm+TBdMQQAfSUsDCBZLAky/IyhlREsDCChMZ0sBvkQXFilMULAiQ0sCFksCTL9C/+A2GgFJFYEIEkQXMQC+TBdMREsBREoORLExAEsCsgiyByKyECOyAbNMCUlAAAwxALxISRYpTFCwIkMxAEsBFr9C/+8=", "clear": "C4EBQw=="}, "compilerInfo": {"compiler": "puya", "compilerVersion": {"major": 5, "minor": 2, "patch": 0}}, "events": [], "networks": {}, "source": {"approval": "I3ByYWdtYSB2ZXJzaW9uIDExCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBhbGdvcHkuYXJjNC5BUkM0Q29udHJhY3QuYXBwcm92YWxfcHJvZ3JhbSgpIC0+IHVpbnQ2NDoKbWFpbjoKICAgIGludGNibG9jayAxIDAKICAgIGJ5dGVjYmxvY2sgInRvdGFsX2RlcG9zaXQiIDB4MTUxZjdjNzUKICAgIHR4biBBcHBsaWNhdGlvbklECiAgICBibnogbWFpbl9hZnRlcl9pZl9lbHNlQDIKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9iYW5rL2NvbnRyYWN0LnB5OjExCiAgICAvLyBzZWxmLnRvdGFsX2RlcG9zaXQgPSBVSW50NjQoMCkKICAgIGJ5dGVjXzAgLy8gInRvdGFsX2RlcG9zaXQiCiAgICBpbnRjXzEgLy8gMAogICAgYXBwX2dsb2JhbF9wdXQKCm1haW5fYWZ0ZXJfaWZfZWxzZUAyOgogICAgLy8gc21hcnRfY29udHJhY3RzL2JhbmsvY29udHJhY3QucHk6NQogICAgLy8gY2xhc3MgQmFuayhBUkM0Q29udHJhY3QpOgogICAgdHhuIE51bUFwcEFyZ3MKICAgIGJ6IG1haW5fX19hbGdvcHlfZGVmYXVsdF9jcmVhdGVAMTEKICAgIHR4biBPbkNvbXBsZXRpb24KICAgICEKICAgIGFzc2VydCAvLyBPbkNvbXBsZXRpb24gbXVzdCBiZSBOb09wCiAgICB0eG4gQXBwbGljYXRpb25JRAogICAgYXNzZXJ0CiAgICBwdXNoYnl0ZXNzIDB4OWY1OTdjMzIgMHgzMTIxNDE3NiAvLyBtZXRob2QgImRlcG9zaXQoc3RyaW5nLHBheSl1aW50NjQiLCBtZXRob2QgIndpdGhkcmF3KHVpbnQ2NCl1aW50NjQiCiAgICB0eG5hIEFwcGxpY2F0aW9uQXJncyAwCiAgICBtYXRjaCBkZXBvc2l0IHdpdGhkcmF3CiAgICBlcnIKCm1haW5fX19hbGdvcHlfZGVmYXVsdF9jcmVhdGVAMTE6CiAgICB0eG4gT25Db21wbGV0aW9uCiAgICAhCiAgICB0eG4gQXBwbGljYXRpb25JRAogICAgIQogICAgJiYKICAgIHJldHVybiAvLyBvbiBlcnJvcjogT25Db21wbGV0aW9uIG11c3QgYmUgTm9PcCAmJiBjYW4gb25seSBjYWxsIHdoZW4gY3JlYXRpbmcKCgovLyBzbWFydF9jb250cmFjdHMuYmFuay5jb250cmFjdC5CYW5rLmRlcG9zaXRbcm91dGluZ10oKSAtPiB2b2lkOgpkZXBvc2l0OgogICAgLy8gc21hcnRfY29udHJhY3RzL2JhbmsvY29udHJhY3QucHk6MTMKICAgIC8vIEBhYmltZXRob2QoKQogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMQogICAgZHVwCiAgICBpbnRjXzEgLy8gMAogICAgZXh0cmFjdF91aW50MTYKICAgIHB1c2hpbnQgMiAvLyAyCiAgICArCiAgICBzd2FwCiAgICBsZW4KICAgID09CiAgICBhc3NlcnQgLy8gaW52YWxpZCBudW1iZXIgb2YgYnl0ZXMgZm9yIChsZW4rdXRmOFtdKQogICAgdHhuIEdyb3VwSW5kZXgKICAgIGludGNfMCAvLyAxCiAgICAtCiAgICBkdXAKICAgIGd0eG5zIFR5cGVFbnVtCiAgICBpbnRjXzAgLy8gcGF5CiAgICA9PQogICAgYXNzZXJ0IC8vIHRyYW5zYWN0aW9uIHR5cGUgaXMgcGF5CiAgICAvLyBzbWFydF9jb250cmFjdHMvYmFuay9jb250cmFjdC5weToxNgogICAgLy8gYXNzZXJ0IHBheV90eG4ucmVjZWl2ZXIgPT0gR2xvYmFsLmN1cnJlbnRfYXBwbGljYXRpb25fYWRkcmVzcywgIlJlY2VpdmVyIG11c3QgYmUgdGhlIGNvbnRyYWN0IGFkZHJlc3MiCiAgICBkdXAKICAgIGd0eG5zIFJlY2VpdmVyCiAgICBnbG9iYWwgQ3VycmVudEFwcGxpY2F0aW9uQWRkcmVzcwogICAgPT0KICAgIGFzc2VydCAvLyBSZWNlaXZlciBtdXN0IGJlIHRoZSBjb250cmFjdCBhZGRyZXNzCiAgICAvLyBzbWFydF9jb250cmFjdHMvYmFuay9jb250cmFjdC5weToxNwogICAgLy8gYXNzZXJ0IHBheV90eG4uYW1vdW50ID4gMCwgIkRlcG9zaXQgYW1vdW50IG11c3QgYmUgZ3JlYXRlciB0aGFuIHplcm8iCiAgICBkdXAKICAgIGd0eG5zIEFtb3VudAogICAgZHVwCiAgICBjb3ZlciAyCiAgICBhc3NlcnQgLy8gRGVwb3NpdCBhbW91bnQgbXVzdCBiZSBncmVhdGVyIHRoYW4gemVybwogICAgLy8gc21hcnRfY29udHJhY3RzL2JhbmsvY29udHJhY3QucHk6MTkKICAgIC8vIGFtb3VudCwgZXhpc3RzID0gc2VsZi5kZXBvc2l0cy5tYXliZShwYXlfdHhuLnNlbmRlcikKICAgIGd0eG5zIFNlbmRlcgogICAgZHVwCiAgICBib3hfZ2V0CiAgICBzd2FwCiAgICBidG9pCiAgICBzd2FwCiAgICAvLyBzbWFydF9jb250cmFjdHMvYmFuay9jb250cmFjdC5weToyMAogICAgLy8gaWYgZXhpc3RzOgogICAgYnogZGVwb3NpdF9lbHNlX2JvZHlAMwogICAgLy8gc21hcnRfY29udHJhY3RzL2JhbmsvY29udHJhY3QucHk6MjEKICAgIC8vIHNlbGYuZGVwb3NpdHNbcGF5X3R4bi5zZW5kZXJdID0gYW1vdW50ICsgcGF5X3R4bi5hbW91bnQKICAgIGR1cAogICAgZGlnIDMKICAgICsKICAgIGl0b2IKICAgIGRpZyAyCiAgICBzd2FwCiAgICBib3hfcHV0CgpkZXBvc2l0X2FmdGVyX2lmX2Vsc2VANDoKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9iYW5rL2NvbnRyYWN0LnB5OjI1CiAgICAvLyBzZWxmLnRvdGFsX2RlcG9zaXQgKz0gcGF5X3R4bi5hbW91bnQKICAgIGludGNfMSAvLyAwCiAgICBieXRlY18wIC8vICJ0b3RhbF9kZXBvc2l0IgogICAgYXBwX2dsb2JhbF9nZXRfZXgKICAgIGFzc2VydCAvLyBjaGVjayBzZWxmLnRvdGFsX2RlcG9zaXQgZXhpc3RzCiAgICBkaWcgMwogICAgKwogICAgYnl0ZWNfMCAvLyAidG90YWxfZGVwb3NpdCIKICAgIHN3YXAKICAgIGFwcF9nbG9iYWxfcHV0CiAgICAvLyBzbWFydF9jb250cmFjdHMvYmFuay9jb250cmFjdC5weToyNgogICAgLy8gcmV0dXJuIHNlbGYuZGVwb3NpdHNbcGF5X3R4bi5zZW5kZXJdCiAgICBkaWcgMQogICAgYm94X2dldAogICAgYXNzZXJ0IC8vIGNoZWNrIHNlbGYuZGVwb3NpdHMgZW50cnkgZXhpc3RzCiAgICBidG9pCiAgICAvLyBzbWFydF9jb250cmFjdHMvYmFuay9jb250cmFjdC5weToxMwogICAgLy8gQGFiaW1ldGhvZCgpCiAgICBpdG9iCiAgICBieXRlY18xIC8vIDB4MTUxZjdjNzUKICAgIHN3YXAKICAgIGNvbmNhdAogICAgbG9nCiAgICBpbnRjXzAgLy8gMQogICAgcmV0dXJuCgpkZXBvc2l0X2Vsc2VfYm9keUAzOgogICAgLy8gc21hcnRfY29udHJhY3RzL2JhbmsvY29udHJhY3QucHk6MjMKICAgIC8vIHNlbGYuZGVwb3NpdHNbcGF5X3R4bi5zZW5kZXJdID0gcGF5X3R4bi5hbW91bnQKICAgIGRpZyAyCiAgICBpdG9iCiAgICBkaWcgMgogICAgc3dhcAogICAgYm94X3B1dAogICAgYiBkZXBvc2l0X2FmdGVyX2lmX2Vsc2VANAoKCi8vIHNtYXJ0X2NvbnRyYWN0cy5iYW5rLmNvbnRyYWN0LkJhbmsud2l0aGRyYXdbcm91dGluZ10oKSAtPiB2b2lkOgp3aXRoZHJhdzoKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9iYW5rL2NvbnRyYWN0LnB5OjI4CiAgICAvLyBAYWJpbWV0aG9kKCkKICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDEKICAgIGR1cAogICAgbGVuCiAgICBwdXNoaW50IDggLy8gOAogICAgPT0KICAgIGFzc2VydCAvLyBpbnZhbGlkIG51bWJlciBvZiBieXRlcyBmb3IgdWludDY0CiAgICBidG9pCiAgICAvLyBzbWFydF9jb250cmFjdHMvYmFuay9jb250cmFjdC5weTozMQogICAgLy8gY3VycmVudCwgZXhpc3RzID0gc2VsZi5kZXBvc2l0cy5tYXliZShUeG4uc2VuZGVyKQogICAgdHhuIFNlbmRlcgogICAgYm94X2dldAogICAgc3dhcAogICAgYnRvaQogICAgLy8gc21hcnRfY29udHJhY3RzL2JhbmsvY29udHJhY3QucHk6MzIKICAgIC8vIGFzc2VydCBleGlzdHMsICJObyBkZXBvc2l0cyBmb3VuZCBmb3IgdGhpcyBhY2NvdW50IgogICAgc3dhcAogICAgYXNzZXJ0IC8vIE5vIGRlcG9zaXRzIGZvdW5kIGZvciB0aGlzIGFjY291bnQKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9iYW5rL2NvbnRyYWN0LnB5OjMzCiAgICAvLyBhc3NlcnQgYW1vdW50ID4gMCwgIldpdGhkcmF3YWwgYW1vdW50IG11c3QgYmUgZ3JlYXRlciB0aGFuIHplcm8iCiAgICBkaWcgMQogICAgYXNzZXJ0IC8vIFdpdGhkcmF3YWwgYW1vdW50IG11c3QgYmUgZ3JlYXRlciB0aGFuIHplcm8KICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9iYW5rL2NvbnRyYWN0LnB5OjM0CiAgICAvLyBhc3NlcnQgYW1vdW50IDw9IGN1cnJlbnQsICJXaXRoZHJhd2FsIGFtb3VudCBleGNlZWRzIGJhbGFuY2UiCiAgICBkdXAyCiAgICA8PQogICAgYXNzZXJ0IC8vIFdpdGhkcmF3YWwgYW1vdW50IGV4Y2VlZHMgYmFsYW5jZQogICAgLy8gc21hcnRfY29udHJhY3RzL2JhbmsvY29udHJhY3QucHk6MzYKICAgIC8vIGl0eG4uUGF5bWVudChyZWNlaXZlcj1UeG4uc2VuZGVyLCBhbW91bnQ9YW1vdW50LCBmZWU9MCkuc3VibWl0KCkKICAgIGl0eG5fYmVnaW4KICAgIHR4biBTZW5kZXIKICAgIGRpZyAyCiAgICBpdHhuX2ZpZWxkIEFtb3VudAogICAgaXR4bl9maWVsZCBSZWNlaXZlcgogICAgaW50Y18wIC8vIHBheQogICAgaXR4bl9maWVsZCBUeXBlRW51bQogICAgaW50Y18xIC8vIDAKICAgIGl0eG5fZmllbGQgRmVlCiAgICBpdHhuX3N1Ym1pdAogICAgLy8gc21hcnRfY29udHJhY3RzL2JhbmsvY29udHJhY3QucHk6MzgKICAgIC8vIHJlbWFpbmluZyA9IGN1cnJlbnQgLSBhbW91bnQKICAgIHN3YXAKICAgIC0KICAgIGR1cAogICAgLy8gc21hcnRfY29udHJhY3RzL2JhbmsvY29udHJhY3QucHk6MzkKICAgIC8vIGlmIHJlbWFpbmluZyA9PSBVSW50NjQoMCk6CiAgICBibnogd2l0aGRyYXdfZWxzZV9ib2R5QDQKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9iYW5rL2NvbnRyYWN0LnB5OjQwCiAgICAvLyBkZWwgc2VsZi5kZXBvc2l0c1tUeG4uc2VuZGVyXQogICAgdHhuIFNlbmRlcgogICAgYm94X2RlbAogICAgcG9wCgp3aXRoZHJhd19hZnRlcl9pZl9lbHNlQDU6CiAgICAvLyBzbWFydF9jb250cmFjdHMvYmFuay9jb250cmFjdC5weToyOAogICAgLy8gQGFiaW1ldGhvZCgpCiAgICBkdXAKICAgIGl0b2IKICAgIGJ5dGVjXzEgLy8gMHgxNTFmN2M3NQogICAgc3dhcAogICAgY29uY2F0CiAgICBsb2cKICAgIGludGNfMCAvLyAxCiAgICByZXR1cm4KCndpdGhkcmF3X2Vsc2VfYm9keUA0OgogICAgLy8gc21hcnRfY29udHJhY3RzL2JhbmsvY29udHJhY3QucHk6NDIKICAgIC8vIHNlbGYuZGVwb3NpdHNbVHhuLnNlbmRlcl0gPSByZW1haW5pbmcKICAgIHR4biBTZW5kZXIKICAgIGRpZyAxCiAgICBpdG9iCiAgICBib3hfcHV0CiAgICBiIHdpdGhkcmF3X2FmdGVyX2lmX2Vsc2VANQo=", "clear": "I3ByYWdtYSB2ZXJzaW9uIDExCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBhbGdvcHkuYXJjNC5BUkM0Q29udHJhY3QuY2xlYXJfc3RhdGVfcHJvZ3JhbSgpIC0+IHVpbnQ2NDoKbWFpbjoKICAgIHB1c2hpbnQgMSAvLyAxCiAgICByZXR1cm4K"}, "sourceInfo": {"approval": {"pcOffsetMethod": "none", "sourceInfo": [{"pc": [112], "errorMessage": "Deposit amount must be greater than zero"}, {"pc": [180], "errorMessage": "No deposits found for this account"}, {"pc": [42], "errorMessage": "OnCompletion must be NoOp"}, {"pc": [75], "errorMessage": "OnCompletion must be NoOp && can only call when creating"}, {"pc": [105], "errorMessage": "Receiver must be the contract address"}, {"pc": [186], "errorMessage": "Withdrawal amount exceeds balance"}, {"pc": [183], "errorMessage": "Withdrawal amount must be greater than zero"}, {"pc": [145], "errorMessage": "check self.deposits entry exists"}, {"pc": [135], "errorMessage": "check self.total_deposit exists"}, {"pc": [88], "errorMessage": "invalid number of bytes for (len+utf8[])"}, {"pc": [172], "errorMessage": "invalid number of bytes for uint64"}, {"pc": [98], "errorMessage": "transaction type is pay"}]}, "clear": {"pcOffsetMethod": "none", "sourceInfo": []}}, "templateVariables": {}}"""
 APP_SPEC = algokit_utils.Arc56Contract.from_json(_APP_SPEC_JSON)
 
 def _parse_abi_args(args: object | None = None) -> list[object] | None:
@@ -64,19 +64,54 @@ def _init_dataclass(cls: type, data: dict) -> object:
             field_values[field.name] = field_value
     return cls(**field_values)
 
-class CounterParams:
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class DepositArgs:
+    """Dataclass for deposit arguments"""
+    memo: str
+    pay_txn: algokit_utils.AppMethodCallTransactionArgument
+
+    @property
+    def abi_method_signature(self) -> str:
+        return "deposit(string,pay)uint64"
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class WithdrawArgs:
+    """Dataclass for withdraw arguments"""
+    amount: int
+
+    @property
+    def abi_method_signature(self) -> str:
+        return "withdraw(uint64)uint64"
+
+
+class BankParams:
     def __init__(self, app_client: algokit_utils.AppClient):
         self.app_client = app_client
 
-    def incr_counter(
+    def deposit(
         self,
+        args: tuple[str, algokit_utils.AppMethodCallTransactionArgument] | DepositArgs,
         params: algokit_utils.CommonAppCallParams | None = None
     ) -> algokit_utils.AppCallMethodCallParams:
-    
+        method_args = _parse_abi_args(args)
         params = params or algokit_utils.CommonAppCallParams()
         return self.app_client.params.call(algokit_utils.AppClientMethodCallParams(**{
             **dataclasses.asdict(params),
-            "method": "incr_counter()uint64",
+            "method": "deposit(string,pay)uint64",
+            "args": method_args,
+        }))
+
+    def withdraw(
+        self,
+        args: tuple[int] | WithdrawArgs,
+        params: algokit_utils.CommonAppCallParams | None = None
+    ) -> algokit_utils.AppCallMethodCallParams:
+        method_args = _parse_abi_args(args)
+        params = params or algokit_utils.CommonAppCallParams()
+        return self.app_client.params.call(algokit_utils.AppClientMethodCallParams(**{
+            **dataclasses.asdict(params),
+            "method": "withdraw(uint64)uint64",
+            "args": method_args,
         }))
 
     def clear_state(
@@ -90,19 +125,34 @@ class CounterParams:
         )
 
 
-class CounterCreateTransactionParams:
+class BankCreateTransactionParams:
     def __init__(self, app_client: algokit_utils.AppClient):
         self.app_client = app_client
 
-    def incr_counter(
+    def deposit(
         self,
+        args: tuple[str, algokit_utils.AppMethodCallTransactionArgument] | DepositArgs,
         params: algokit_utils.CommonAppCallParams | None = None
     ) -> algokit_utils.BuiltTransactions:
-    
+        method_args = _parse_abi_args(args)
         params = params or algokit_utils.CommonAppCallParams()
         return self.app_client.create_transaction.call(algokit_utils.AppClientMethodCallParams(**{
             **dataclasses.asdict(params),
-            "method": "incr_counter()uint64",
+            "method": "deposit(string,pay)uint64",
+            "args": method_args,
+        }))
+
+    def withdraw(
+        self,
+        args: tuple[int] | WithdrawArgs,
+        params: algokit_utils.CommonAppCallParams | None = None
+    ) -> algokit_utils.BuiltTransactions:
+        method_args = _parse_abi_args(args)
+        params = params or algokit_utils.CommonAppCallParams()
+        return self.app_client.create_transaction.call(algokit_utils.AppClientMethodCallParams(**{
+            **dataclasses.asdict(params),
+            "method": "withdraw(uint64)uint64",
+            "args": method_args,
         }))
 
     def clear_state(
@@ -116,20 +166,38 @@ class CounterCreateTransactionParams:
         )
 
 
-class CounterSend:
+class BankSend:
     def __init__(self, app_client: algokit_utils.AppClient):
         self.app_client = app_client
 
-    def incr_counter(
+    def deposit(
         self,
+        args: tuple[str, algokit_utils.AppMethodCallTransactionArgument] | DepositArgs,
         params: algokit_utils.CommonAppCallParams | None = None,
         send_params: algokit_utils.SendParams | None = None
     ) -> algokit_utils.SendAppTransactionResult[int]:
-    
+        method_args = _parse_abi_args(args)
         params = params or algokit_utils.CommonAppCallParams()
         response = self.app_client.send.call(algokit_utils.AppClientMethodCallParams(**{
             **dataclasses.asdict(params),
-            "method": "incr_counter()uint64",
+            "method": "deposit(string,pay)uint64",
+            "args": method_args,
+        }), send_params=send_params)
+        parsed_response = response
+        return typing.cast(algokit_utils.SendAppTransactionResult[int], parsed_response)
+
+    def withdraw(
+        self,
+        args: tuple[int] | WithdrawArgs,
+        params: algokit_utils.CommonAppCallParams | None = None,
+        send_params: algokit_utils.SendParams | None = None
+    ) -> algokit_utils.SendAppTransactionResult[int]:
+        method_args = _parse_abi_args(args)
+        params = params or algokit_utils.CommonAppCallParams()
+        response = self.app_client.send.call(algokit_utils.AppClientMethodCallParams(**{
+            **dataclasses.asdict(params),
+            "method": "withdraw(uint64)uint64",
+            "args": method_args,
         }), send_params=send_params)
         parsed_response = response
         return typing.cast(algokit_utils.SendAppTransactionResult[int], parsed_response)
@@ -147,10 +215,10 @@ class CounterSend:
 
 class GlobalStateValue(typing.TypedDict):
     """Shape of global_state state key values"""
-    count: int
+    total_deposit: int
 
-class CounterState:
-    """Methods to access state for the current Counter app"""
+class BankState:
+    """Methods to access state for the current Bank app"""
 
     def __init__(self, app_client: algokit_utils.AppClient):
         self.app_client = app_client
@@ -161,6 +229,13 @@ class CounterState:
     ) -> "_GlobalState":
             """Methods to access global_state for the current app"""
             return _GlobalState(self.app_client)
+
+    @property
+    def box(
+        self
+    ) -> "_BoxState":
+            """Methods to access box for the current app"""
+            return _BoxState(self.app_client)
 
 class _GlobalState:
     def __init__(self, app_client: algokit_utils.AppClient):
@@ -186,15 +261,82 @@ class _GlobalState:
         return typing.cast(GlobalStateValue, converted)
 
     @property
-    def count(self) -> int:
-        """Get the current value of the count key in global_state state"""
-        value = self.app_client.state.global_state.get_value("count")
+    def total_deposit(self) -> int:
+        """Get the current value of the total_deposit key in global_state state"""
+        value = self.app_client.state.global_state.get_value("total_deposit")
         if isinstance(value, dict) and "AVMUint64" in self._struct_classes:
             return _init_dataclass(self._struct_classes["AVMUint64"], value)  # type: ignore
         return typing.cast(int, value)
 
-class CounterClient:
-    """Client for interacting with Counter smart contract"""
+class _BoxState:
+    def __init__(self, app_client: algokit_utils.AppClient):
+        self.app_client = app_client
+        
+        # Pre-generated mapping of value types to their struct classes
+        self._struct_classes: dict[str, typing.Type[typing.Any]] = {}
+
+    def get_all(self) -> dict[str, typing.Any]:
+        """Get all current keyed values from box state"""
+        result = self.app_client.state.box.get_all()
+        if not result:
+            return {}
+
+        converted = {}
+        for key, value in result.items():
+            key_info = self.app_client.app_spec.state.keys.box.get(key)
+            struct_class = self._struct_classes.get(key_info.value_type) if key_info else None
+            converted[key] = (
+                _init_dataclass(struct_class, value) if struct_class and isinstance(value, dict)
+                else value
+            )
+        return converted
+
+    @property
+    def deposits(self) -> "_MapState[str, int]":
+        """Get values from the deposits map in box state"""
+        return _MapState(
+            self.app_client.state.box,
+            "deposits",
+            None
+        )
+
+_KeyType = typing.TypeVar("_KeyType")
+_ValueType = typing.TypeVar("_ValueType")
+
+class _AppClientStateMethodsProtocol(typing.Protocol):
+    def get_map(self, map_name: str) -> dict[typing.Any, typing.Any]:
+        ...
+    def get_map_value(self, map_name: str, key: typing.Any) -> typing.Any | None:
+        ...
+
+class _MapState(typing.Generic[_KeyType, _ValueType]):
+    """Generic class for accessing state maps with strongly typed keys and values"""
+
+    def __init__(self, state_accessor: _AppClientStateMethodsProtocol, map_name: str,
+                struct_class: typing.Type[_ValueType] | None = None):
+        self._state_accessor = state_accessor
+        self._map_name = map_name
+        self._struct_class = struct_class
+
+    def get_map(self) -> dict[_KeyType, _ValueType]:
+        """Get all current values in the map"""
+        result = self._state_accessor.get_map(self._map_name)
+        if self._struct_class and result:
+            return {k: _init_dataclass(self._struct_class, v) if isinstance(v, dict) else v
+                    for k, v in result.items()}  # type: ignore
+        return typing.cast(dict[_KeyType, _ValueType], result or {})
+
+    def get_value(self, key: _KeyType) -> _ValueType | None:
+        """Get a value from the map by key"""
+        key_value = dataclasses.asdict(key) if dataclasses.is_dataclass(key) else key  # type: ignore
+        value = self._state_accessor.get_map_value(self._map_name, key_value)
+        if value is not None and self._struct_class and isinstance(value, dict):
+            return _init_dataclass(self._struct_class, value)  # type: ignore
+        return typing.cast(_ValueType | None, value)
+
+
+class BankClient:
+    """Client for interacting with Bank smart contract"""
 
     @typing.overload
     def __init__(self, app_client: algokit_utils.AppClient) -> None: ...
@@ -242,10 +384,10 @@ class CounterClient:
         else:
             raise ValueError("Either app_client or algorand and app_id must be provided")
     
-        self.params = CounterParams(self.app_client)
-        self.create_transaction = CounterCreateTransactionParams(self.app_client)
-        self.send = CounterSend(self.app_client)
-        self.state = CounterState(self.app_client)
+        self.params = BankParams(self.app_client)
+        self.create_transaction = BankCreateTransactionParams(self.app_client)
+        self.send = BankSend(self.app_client)
+        self.state = BankState(self.app_client)
 
     @staticmethod
     def from_creator_and_name(
@@ -258,8 +400,8 @@ class CounterClient:
         clear_source_map: SourceMap | None = None,
         ignore_cache: bool | None = None,
         app_lookup_cache: algokit_utils.ApplicationLookup | None = None,
-    ) -> "CounterClient":
-        return CounterClient(
+    ) -> "BankClient":
+        return BankClient(
             algokit_utils.AppClient.from_creator_and_name(
                 creator_address=creator_address,
                 app_name=app_name,
@@ -282,8 +424,8 @@ class CounterClient:
         default_signer: TransactionSigner | None = None,
         approval_source_map: SourceMap | None = None,
         clear_source_map: SourceMap | None = None,
-    ) -> "CounterClient":
-        return CounterClient(
+    ) -> "BankClient":
+        return BankClient(
             algokit_utils.AppClient.from_network(
                 app_spec=APP_SPEC,
                 algorand=algorand,
@@ -322,8 +464,8 @@ class CounterClient:
         default_signer: TransactionSigner | None = None,
         approval_source_map: SourceMap | None = None,
         clear_source_map: SourceMap | None = None,
-    ) -> "CounterClient":
-        return CounterClient(
+    ) -> "BankClient":
+        return BankClient(
             self.app_client.clone(
                 app_name=app_name,
                 default_sender=default_sender,
@@ -333,13 +475,19 @@ class CounterClient:
             )
         )
 
-    def new_group(self) -> "CounterComposer":
-        return CounterComposer(self)
+    def new_group(self) -> "BankComposer":
+        return BankComposer(self)
 
     @typing.overload
     def decode_return_value(
         self,
-        method: typing.Literal["incr_counter()uint64"],
+        method: typing.Literal["deposit(string,pay)uint64"],
+        return_value: algokit_utils.ABIReturn | None
+    ) -> int | None: ...
+    @typing.overload
+    def decode_return_value(
+        self,
+        method: typing.Literal["withdraw(uint64)uint64"],
         return_value: algokit_utils.ABIReturn | None
     ) -> int | None: ...
     @typing.overload
@@ -373,15 +521,15 @@ class CounterClient:
 
 
 @dataclasses.dataclass(frozen=True)
-class CounterBareCallCreateParams(algokit_utils.AppClientBareCallCreateParams):
-    """Parameters for creating Counter contract with bare calls"""
+class BankBareCallCreateParams(algokit_utils.AppClientBareCallCreateParams):
+    """Parameters for creating Bank contract with bare calls"""
     on_complete: typing.Literal[OnComplete.NoOpOC] | None = None
 
     def to_algokit_utils_params(self) -> algokit_utils.AppClientBareCallCreateParams:
         return algokit_utils.AppClientBareCallCreateParams(**self.__dict__)
 
-class CounterFactory(algokit_utils.TypedAppFactoryProtocol[CounterBareCallCreateParams, None, None]):
-    """Factory for deploying and managing CounterClient smart contracts"""
+class BankFactory(algokit_utils.TypedAppFactoryProtocol[BankBareCallCreateParams, None, None]):
+    """Factory for deploying and managing BankClient smart contracts"""
 
     def __init__(
         self,
@@ -404,9 +552,9 @@ class CounterFactory(algokit_utils.TypedAppFactoryProtocol[CounterBareCallCreate
                 compilation_params=compilation_params,
             )
         )
-        self.params = CounterFactoryParams(self.app_factory)
-        self.create_transaction = CounterFactoryCreateTransaction(self.app_factory)
-        self.send = CounterFactorySend(self.app_factory)
+        self.params = BankFactoryParams(self.app_factory)
+        self.create_transaction = BankFactoryCreateTransaction(self.app_factory)
+        self.send = BankFactorySend(self.app_factory)
 
     @property
     def app_name(self) -> str:
@@ -425,7 +573,7 @@ class CounterFactory(algokit_utils.TypedAppFactoryProtocol[CounterBareCallCreate
         *,
         on_update: algokit_utils.OnUpdate | None = None,
         on_schema_break: algokit_utils.OnSchemaBreak | None = None,
-        create_params: CounterBareCallCreateParams | None = None,
+        create_params: BankBareCallCreateParams | None = None,
         update_params: None = None,
         delete_params: None = None,
         existing_deployments: algokit_utils.ApplicationLookup | None = None,
@@ -433,7 +581,7 @@ class CounterFactory(algokit_utils.TypedAppFactoryProtocol[CounterBareCallCreate
         app_name: str | None = None,
         compilation_params: algokit_utils.AppClientCompilationParams | None = None,
         send_params: algokit_utils.SendParams | None = None,
-    ) -> tuple[CounterClient, algokit_utils.AppFactoryDeployResult]:
+    ) -> tuple[BankClient, algokit_utils.AppFactoryDeployResult]:
         """Deploy the application"""
         deploy_response = self.app_factory.deploy(
             on_update=on_update,
@@ -448,7 +596,7 @@ class CounterFactory(algokit_utils.TypedAppFactoryProtocol[CounterBareCallCreate
             send_params=send_params,
         )
 
-        return CounterClient(deploy_response[0]), deploy_response[1]
+        return BankClient(deploy_response[0]), deploy_response[1]
 
     def get_app_client_by_creator_and_name(
         self,
@@ -460,9 +608,9 @@ class CounterFactory(algokit_utils.TypedAppFactoryProtocol[CounterBareCallCreate
         app_lookup_cache: algokit_utils.ApplicationLookup | None = None,
         approval_source_map: SourceMap | None = None,
         clear_source_map: SourceMap | None = None,
-    ) -> CounterClient:
+    ) -> BankClient:
         """Get an app client by creator address and name"""
-        return CounterClient(
+        return BankClient(
             self.app_factory.get_app_client_by_creator_and_name(
                 creator_address,
                 app_name,
@@ -483,9 +631,9 @@ class CounterFactory(algokit_utils.TypedAppFactoryProtocol[CounterBareCallCreate
         default_signer: TransactionSigner | None = None,
         approval_source_map: SourceMap | None = None,
         clear_source_map: SourceMap | None = None,
-    ) -> CounterClient:
+    ) -> BankClient:
         """Get an app client by app ID"""
-        return CounterClient(
+        return BankClient(
             self.app_factory.get_app_client_by_id(
                 app_id,
                 app_name,
@@ -497,17 +645,17 @@ class CounterFactory(algokit_utils.TypedAppFactoryProtocol[CounterBareCallCreate
         )
 
 
-class CounterFactoryParams:
-    """Parameters for creating transactions for Counter contract"""
+class BankFactoryParams:
+    """Parameters for creating transactions for Bank contract"""
 
     def __init__(self, app_factory: algokit_utils.AppFactory):
         self.app_factory = app_factory
-        self.create = CounterFactoryCreateParams(app_factory)
-        self.update = CounterFactoryUpdateParams(app_factory)
-        self.delete = CounterFactoryDeleteParams(app_factory)
+        self.create = BankFactoryCreateParams(app_factory)
+        self.update = BankFactoryUpdateParams(app_factory)
+        self.delete = BankFactoryDeleteParams(app_factory)
 
-class CounterFactoryCreateParams:
-    """Parameters for 'create' operations of Counter contract"""
+class BankFactoryCreateParams:
+    """Parameters for 'create' operations of Bank contract"""
 
     def __init__(self, app_factory: algokit_utils.AppFactory):
         self.app_factory = app_factory
@@ -524,27 +672,48 @@ class CounterFactoryCreateParams:
             algokit_utils.AppFactoryCreateParams(**dataclasses.asdict(params)),
             compilation_params=compilation_params)
 
-    def incr_counter(
+    def deposit(
         self,
+        args: tuple[str, algokit_utils.AppMethodCallTransactionArgument] | DepositArgs,
         *,
         params: algokit_utils.CommonAppCallCreateParams | None = None,
         compilation_params: algokit_utils.AppClientCompilationParams | None = None
     ) -> algokit_utils.AppCreateMethodCallParams:
-        """Creates a new instance using the incr_counter()uint64 ABI method"""
+        """Creates a new instance using the deposit(string,pay)uint64 ABI method"""
         params = params or algokit_utils.CommonAppCallCreateParams()
         return self.app_factory.params.create(
             algokit_utils.AppFactoryCreateMethodCallParams(
                 **{
                 **dataclasses.asdict(params),
-                "method": "incr_counter()uint64",
-                "args": None,
+                "method": "deposit(string,pay)uint64",
+                "args": _parse_abi_args(args),
                 }
             ),
             compilation_params=compilation_params
         )
 
-class CounterFactoryUpdateParams:
-    """Parameters for 'update' operations of Counter contract"""
+    def withdraw(
+        self,
+        args: tuple[int] | WithdrawArgs,
+        *,
+        params: algokit_utils.CommonAppCallCreateParams | None = None,
+        compilation_params: algokit_utils.AppClientCompilationParams | None = None
+    ) -> algokit_utils.AppCreateMethodCallParams:
+        """Creates a new instance using the withdraw(uint64)uint64 ABI method"""
+        params = params or algokit_utils.CommonAppCallCreateParams()
+        return self.app_factory.params.create(
+            algokit_utils.AppFactoryCreateMethodCallParams(
+                **{
+                **dataclasses.asdict(params),
+                "method": "withdraw(uint64)uint64",
+                "args": _parse_abi_args(args),
+                }
+            ),
+            compilation_params=compilation_params
+        )
+
+class BankFactoryUpdateParams:
+    """Parameters for 'update' operations of Bank contract"""
 
     def __init__(self, app_factory: algokit_utils.AppFactory):
         self.app_factory = app_factory
@@ -561,8 +730,8 @@ class CounterFactoryUpdateParams:
             algokit_utils.AppClientBareCallParams(**dataclasses.asdict(params)),
             )
 
-class CounterFactoryDeleteParams:
-    """Parameters for 'delete' operations of Counter contract"""
+class BankFactoryDeleteParams:
+    """Parameters for 'delete' operations of Bank contract"""
 
     def __init__(self, app_factory: algokit_utils.AppFactory):
         self.app_factory = app_factory
@@ -580,16 +749,16 @@ class CounterFactoryDeleteParams:
             )
 
 
-class CounterFactoryCreateTransaction:
-    """Create transactions for Counter contract"""
+class BankFactoryCreateTransaction:
+    """Create transactions for Bank contract"""
 
     def __init__(self, app_factory: algokit_utils.AppFactory):
         self.app_factory = app_factory
-        self.create = CounterFactoryCreateTransactionCreate(app_factory)
+        self.create = BankFactoryCreateTransactionCreate(app_factory)
 
 
-class CounterFactoryCreateTransactionCreate:
-    """Create new instances of Counter contract"""
+class BankFactoryCreateTransactionCreate:
+    """Create new instances of Bank contract"""
 
     def __init__(self, app_factory: algokit_utils.AppFactory):
         self.app_factory = app_factory
@@ -605,16 +774,16 @@ class CounterFactoryCreateTransactionCreate:
         )
 
 
-class CounterFactorySend:
-    """Send calls to Counter contract"""
+class BankFactorySend:
+    """Send calls to Bank contract"""
 
     def __init__(self, app_factory: algokit_utils.AppFactory):
         self.app_factory = app_factory
-        self.create = CounterFactorySendCreate(app_factory)
+        self.create = BankFactorySendCreate(app_factory)
 
 
-class CounterFactorySendCreate:
-    """Send create calls to Counter contract"""
+class BankFactorySendCreate:
+    """Send create calls to Bank contract"""
 
     def __init__(self, app_factory: algokit_utils.AppFactory):
         self.app_factory = app_factory
@@ -625,7 +794,7 @@ class CounterFactorySendCreate:
         params: algokit_utils.CommonAppCallCreateParams | None = None,
         send_params: algokit_utils.SendParams | None = None,
         compilation_params: algokit_utils.AppClientCompilationParams | None = None,
-    ) -> tuple[CounterClient, algokit_utils.SendAppCreateTransactionResult]:
+    ) -> tuple[BankClient, algokit_utils.SendAppCreateTransactionResult]:
         """Creates a new instance using a bare call"""
         params = params or algokit_utils.CommonAppCallCreateParams()
         result = self.app_factory.send.bare.create(
@@ -633,30 +802,49 @@ class CounterFactorySendCreate:
             send_params=send_params,
             compilation_params=compilation_params
         )
-        return CounterClient(result[0]), result[1]
+        return BankClient(result[0]), result[1]
 
 
-class CounterComposer:
-    """Composer for creating transaction groups for Counter contract calls"""
+class BankComposer:
+    """Composer for creating transaction groups for Bank contract calls"""
 
-    def __init__(self, client: "CounterClient"):
+    def __init__(self, client: "BankClient"):
         self.client = client
         self._composer = client.algorand.new_group()
         self._result_mappers: list[typing.Callable[[algokit_utils.ABIReturn | None], object] | None] = []
 
-    def incr_counter(
+    def deposit(
         self,
+        args: tuple[str, algokit_utils.AppMethodCallTransactionArgument] | DepositArgs,
         params: algokit_utils.CommonAppCallParams | None = None
-    ) -> "CounterComposer":
+    ) -> "BankComposer":
         self._composer.add_app_call_method_call(
-            self.client.params.incr_counter(
-                
+            self.client.params.deposit(
+                args=args,
                 params=params,
             )
         )
         self._result_mappers.append(
             lambda v: self.client.decode_return_value(
-                "incr_counter()uint64", v
+                "deposit(string,pay)uint64", v
+            )
+        )
+        return self
+
+    def withdraw(
+        self,
+        args: tuple[int] | WithdrawArgs,
+        params: algokit_utils.CommonAppCallParams | None = None
+    ) -> "BankComposer":
+        self._composer.add_app_call_method_call(
+            self.client.params.withdraw(
+                args=args,
+                params=params,
+            )
+        )
+        self._result_mappers.append(
+            lambda v: self.client.decode_return_value(
+                "withdraw(uint64)uint64", v
             )
         )
         return self
@@ -666,7 +854,7 @@ class CounterComposer:
         *,
         args: list[bytes] | None = None,
         params: algokit_utils.CommonAppCallParams | None = None,
-    ) -> "CounterComposer":
+    ) -> "BankComposer":
         params=params or algokit_utils.CommonAppCallParams()
         self._composer.add_app_call(
             self.client.params.clear_state(
@@ -682,7 +870,7 @@ class CounterComposer:
     
     def add_transaction(
         self, txn: Transaction, signer: TransactionSigner | None = None
-    ) -> "CounterComposer":
+    ) -> "BankComposer":
         self._composer.add_transaction(txn, signer)
         return self
     

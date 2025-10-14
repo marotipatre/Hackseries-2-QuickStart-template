@@ -1,7 +1,7 @@
-#pragma version 10
+#pragma version 11
 #pragma typetrack false
 
-// smart_contracts.counter.contract.Counter.__algopy_entrypoint_with_init() -> uint64:
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 0 1
     bytecblock "count"
@@ -17,47 +17,32 @@ main_after_if_else@2:
     // smart_contracts/counter/contract.py:5
     // class Counter(ARC4Contract):
     txn NumAppArgs
-    bz main_bare_routing@6
+    bz main___algopy_default_create@7
     pushbytes 0x36e72924 // method "incr_counter()uint64"
     txna ApplicationArgs 0
     match main_incr_counter_route@5
-
-main_after_if_else@8:
-    // smart_contracts/counter/contract.py:5
-    // class Counter(ARC4Contract):
-    intc_0 // 0
-    return
+    err
 
 main_incr_counter_route@5:
     // smart_contracts/counter/contract.py:16
     // @abimethod()
     txn OnCompletion
     !
-    assert // OnCompletion is not NoOp
     txn ApplicationID
-    assert // can only call when not creating
-    callsub incr_counter
-    itob
-    pushbytes 0x151f7c75
-    swap
-    concat
-    log
-    intc_1 // 1
-    return
+    &&
+    assert // OnCompletion must be NoOp && can only call when not creating
+    b incr_counter
 
-main_bare_routing@6:
-    // smart_contracts/counter/contract.py:5
-    // class Counter(ARC4Contract):
+main___algopy_default_create@7:
     txn OnCompletion
-    bnz main_after_if_else@8
+    !
     txn ApplicationID
     !
-    assert // can only call when creating
-    intc_1 // 1
-    return
+    &&
+    return // on error: OnCompletion must be NoOp && can only call when creating
 
 
-// smart_contracts.counter.contract.Counter.incr_counter() -> uint64:
+// smart_contracts.counter.contract.Counter.incr_counter[routing]() -> void:
 incr_counter:
     // smart_contracts/counter/contract.py:18
     // self.count += UInt64(1)
@@ -68,12 +53,14 @@ incr_counter:
     intc_1 // 1
     +
     bytec_0 // "count"
-    swap
+    dig 1
     app_global_put
-    // smart_contracts/counter/contract.py:19
-    // return self.count
-    intc_0 // 0
-    bytec_0 // "count"
-    app_global_get_ex
-    assert // check self.count exists
-    retsub
+    // smart_contracts/counter/contract.py:16
+    // @abimethod()
+    itob
+    pushbytes 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
