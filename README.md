@@ -327,11 +327,5 @@ Redesign projects/frontend/src/components/MintNFT.tsx for a sleek NFT minter: fi
 
 ---
 
-Links cited:
-- Base template repo: [marotipatre/Hackseries-2-QuickStart-template](https://github.com/marotipatre/Hackseries-2-QuickStart-template)
-- Algorand Developer Portal: `https://dev.algorand.co/`
-- AlgoKit Workshops: `https://algorand.co/algokit-workshops`
-- Algodevs YouTube: `https://www.youtube.com/@algodevs`
-- Pinata API Keys: `https://app.pinata.cloud/developers/api-keys`
 
 
