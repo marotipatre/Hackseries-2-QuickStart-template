@@ -27,7 +27,7 @@ const Bank = ({ openModal, closeModal }: BankProps) => {
   const algodConfig = getAlgodConfigFromViteEnvironment()
   const indexerConfig = getIndexerConfigFromViteEnvironment()
   const algorand = useMemo(() => AlgorandClient.fromConfig({ algodConfig, indexerConfig }), [algodConfig, indexerConfig])
-  const [appId, setAppId] = useState<number | ''>(0)
+  const [appId, setAppId] = useState<number | ''>(747661600)
   const [deploying, setDeploying] = useState<boolean>(false)
   const [depositAmount, setDepositAmount] = useState<string>('')
   const [memo, setMemo] = useState<string>('')
@@ -35,12 +35,16 @@ const Bank = ({ openModal, closeModal }: BankProps) => {
   const [loading, setLoading] = useState<boolean>(false)
   const [statements, setStatements] = useState<Statement[]>([])
   const [depositors, setDepositors] = useState<Array<{ address: string; amount: string }>>([])
+  const [activeTab, setActiveTab] = useState<'deposit' | 'withdraw' | 'statements' | 'depositors'>('deposit')
 
   useEffect(() => {
     algorand.setDefaultSigner(transactionSigner)
   }, [algorand, transactionSigner])
 
   const appAddress = useMemo(() => (appId && appId > 0 ? String(getApplicationAddress(appId)) : ''), [appId])
+
+  const quickDepositAmounts = ['1', '5', '10', '25', '50']
+  const quickWithdrawAmounts = ['1', '5', '10', '25']
 
   const refreshStatements = async () => {
     try {
@@ -49,39 +53,22 @@ const Bank = ({ openModal, closeModal }: BankProps) => {
       const appAddr = String(getApplicationAddress(appId))
       const allTransactions: Statement[] = []
       
-      console.log('Searching for app transactions with app ID:', appId)
-      
-      // Search for application call transactions from user
       const appTxRes = await idx
         .searchForTransactions()
         .address(activeAddress)
         .txType('appl')
         .do()
       
-      console.log('App call transactions found:', appTxRes.transactions?.length || 0)
-      
-      // Process application call transactions (deposits/withdrawals)
       const appTransactions = (appTxRes.transactions || [])
         .filter((t: any) => {
-          // Filter for transactions calling our specific app
           const isOurApp = t.applicationTransaction && 
                           Number(t.applicationTransaction.applicationId) === Number(appId)
-          console.log('Checking transaction:', t.id, {
-            hasAppTxn: !!t.applicationTransaction,
-            appId: t.applicationTransaction?.applicationId,
-            targetAppId: Number(appId),
-            isOurApp,
-            sender: t.sender,
-            activeAddress
-          })
           return isOurApp
         })
         .map((t: any) => {
-        // Determine transaction type from logs or method name
-        let amount = 1 // Default amount
+        let amount = 1
         let type: 'deposit' | 'withdrawal' = 'deposit'
         
-        // Check logs for method name
         if (t.logs && t.logs.length > 0) {
           const logStr = t.logs.join(' ')
           if (logStr.includes('withdraw') || logStr.includes('Withdraw')) {
@@ -89,24 +76,17 @@ const Bank = ({ openModal, closeModal }: BankProps) => {
           }
         }
         
-        // Check inner transactions for actual payment amounts
         if (t.innerTxns && t.innerTxns.length > 0) {
-          console.log('Inner transactions for', t.id, ':', t.innerTxns)
           for (const innerTxn of t.innerTxns) {
             if (innerTxn.paymentTransaction) {
               amount = Number(innerTxn.paymentTransaction.amount) / 1000000
-              // If there's an inner payment from app to user, it's definitely a withdrawal
               if (innerTxn.sender === appAddr && innerTxn.paymentTransaction.receiver === activeAddress) {
                 type = 'withdrawal'
               }
-              console.log('Found payment in inner txn:', { amount, type, sender: innerTxn.sender, receiver: innerTxn.paymentTransaction.receiver })
               break
             }
           }
         }
-        
-        // If no inner transactions found but it's a withdraw call, still show it
-        console.log('Transaction', t.id, 'type:', type, 'amount:', amount)
         
         return {
           id: t.id,
@@ -120,35 +100,6 @@ const Bank = ({ openModal, closeModal }: BankProps) => {
       })
       
       allTransactions.push(...appTransactions)
-      
-      // Also search for direct payment transactions to/from app address
-      const payTxRes = await idx
-        .searchForTransactions()
-        .address(appAddr)
-        .txType('pay')
-        .do()
-      
-      console.log('Payment transactions found:', payTxRes.transactions?.length || 0)
-      
-      const paymentTransactions = (payTxRes.transactions || [])
-        .filter((t: any) => {
-          // Only include withdrawals (app to user) and exclude deposits (user to app) 
-          // since deposits are already captured in app transactions
-          return (t.sender === appAddr && t.paymentTransaction?.receiver === activeAddress)
-        })
-        .map((t: any) => ({
-          id: t.id,
-          round: Number(t.confirmedRound || t['confirmed-round']),
-          amount: Number(t.paymentTransaction.amount) / 1000000,
-          type: t.sender === activeAddress ? 'deposit' as const : 'withdrawal' as const,
-          sender: t.sender,
-          receiver: t.paymentTransaction.receiver,
-          timestamp: Number(t.roundTime || t['round-time']),
-        }))
-      
-      allTransactions.push(...paymentTransactions)
-      
-      console.log('Total relevant transactions:', allTransactions.length)
       setStatements(allTransactions.sort((a, b) => b.round - a.round))
     } catch (e) {
       console.error('Error in refreshStatements:', e)
@@ -163,13 +114,11 @@ const Bank = ({ openModal, closeModal }: BankProps) => {
       const boxes = await algod.getApplicationBoxes(appId).do()
       const list = [] as Array<{ address: string; amount: string }>
       for (const b of boxes.boxes as Array<{ name: Uint8Array }>) {
-        // Skip empty or non-account keys if any
         const nameBytes: Uint8Array = b.name
         if (nameBytes.length !== 32) continue
         const box = await algod.getApplicationBoxByName(appId, nameBytes).do()
         const addr = algosdk.encodeAddress(nameBytes)
         const valueBuf: Uint8Array = box.value
-        // UInt64 big-endian
         const amountMicroAlgos = BigInt(new DataView(Buffer.from(valueBuf).buffer).getBigUint64(0, false))
         const amountAlgos = (Number(amountMicroAlgos) / 1000000).toString()
         list.push({ address: addr, amount: amountAlgos })
@@ -183,7 +132,6 @@ const Bank = ({ openModal, closeModal }: BankProps) => {
   useEffect(() => {
     void refreshStatements()
     void refreshDepositors()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [appId, activeAddress])
 
   const deposit = async () => {
@@ -193,14 +141,11 @@ const Bank = ({ openModal, closeModal }: BankProps) => {
       if (!appId || appId <= 0) throw new Error('Enter valid App ID')
       const amountAlgos = Number(depositAmount)
       if (!amountAlgos || amountAlgos <= 0) throw new Error('Enter amount in Algos')
-      const amountMicroAlgos = Math.round(amountAlgos * 1000000) // Convert to microAlgos
+      const amountMicroAlgos = Math.round(amountAlgos * 1000000)
       setLoading(true)
 
       const sp = await algorand.client.algod.getTransactionParams().do()
       const appAddr = getApplicationAddress(appId)
-      
-      if (!algosdk.isValidAddress(activeAddress)) throw new Error('Invalid wallet address')
-      if (!algosdk.isValidAddress(String(appAddr))) throw new Error('Invalid app address; check App ID')
       
       const payTxn = makePaymentTxnWithSuggestedParamsFromObject({
         sender: activeAddress,
@@ -223,8 +168,8 @@ const Bank = ({ openModal, closeModal }: BankProps) => {
         sender: activeAddress 
       })
       
-      const confirmedRound = (res.confirmation as any)?.['confirmed-round']
-      enqueueSnackbar(`Deposited successfully in round ${confirmedRound}`, { variant: 'success' })
+      enqueueSnackbar(`💰 Deposited ${amountAlgos} ALGO successfully!`, { variant: 'success' })
+      
       setDepositAmount('')
       setMemo('')
       void refreshStatements()
@@ -243,7 +188,7 @@ const Bank = ({ openModal, closeModal }: BankProps) => {
       if (!appId || appId <= 0) throw new Error('Enter valid App ID')
       const amount = Number(withdrawAmount)
       if (!amount || amount <= 0) throw new Error('Enter amount in Algos')
-      const amountMicroAlgos = Math.round(amount * 1000000) // Convert to microAlgos
+      const amountMicroAlgos = Math.round(amount * 1000000)
       setLoading(true)
 
       const client = new BankClient({ 
@@ -258,8 +203,8 @@ const Bank = ({ openModal, closeModal }: BankProps) => {
         extraFee: microAlgos(2000)
       })
       
-      const confirmedRound = (res.confirmation as any)?.['confirmed-round']
-      enqueueSnackbar(`Withdraw executed in round ${confirmedRound}`, { variant: 'success' })
+      enqueueSnackbar(`💸 Withdrew ${amount} ALGO successfully!`, { variant: 'success' })
+      
       setWithdrawAmount('')
       void refreshStatements()
       void refreshDepositors()
@@ -278,7 +223,7 @@ const Bank = ({ openModal, closeModal }: BankProps) => {
       const result = await factory.send.create.bare()
       const newId = Number(result.appClient.appId)
       setAppId(newId)
-      enqueueSnackbar(`Bank deployed. App ID: ${newId}`, { variant: 'success' })
+      enqueueSnackbar(`🏦 Bank deployed successfully! App ID: ${newId}`, { variant: 'success' })
     } catch (e) {
       enqueueSnackbar(`Deploy failed: ${(e as Error).message}`, { variant: 'error' })
     } finally {
@@ -287,88 +232,337 @@ const Bank = ({ openModal, closeModal }: BankProps) => {
   }
 
   return (
-    <dialog id="bank_modal" className={`modal ${openModal ? 'modal-open' : ''} bg-slate-200`}>
-      <form method="dialog" className="modal-box max-w-3xl">
-        <h3 className="font-bold text-lg">Bank Contract</h3>
-        <div className="mt-2 flex flex-col gap-4">
-          <div className="flex flex-col gap-2">
-            <label className="text-sm">Application ID</label>
-            <input className="input input-bordered" type="number" value={appId} onChange={(e) => setAppId(e.target.value === '' ? '' : Number(e.target.value))} placeholder="Enter deployed Bank App ID" />
+    <dialog id="bank_modal" className={`modal ${openModal ? 'modal-open' : ''}`}>
+      <div className="modal-box max-w-4xl bg-gradient-to-br from-rose-900/90 via-pink-900/90 to-purple-900/90 backdrop-blur-xl border border-rose-500/30">
+        <button 
+          className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 text-white hover:bg-white/10" 
+          onClick={closeModal}
+        >
+          ✕
+        </button>
+        
+        <h3 className="font-bold text-3xl mb-6 text-center bg-gradient-to-r from-rose-400 via-pink-400 to-purple-400 bg-clip-text text-transparent">
+          🏦 Algorand Bank Contract
+        </h3>
+
+        {/* App ID Section */}
+        <div className="card bg-gradient-to-br from-purple-600/20 to-pink-600/20 border border-purple-500/30 mb-6">
+          <div className="card-body p-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text font-medium text-white">Application ID</span>
+                </label>
+                <input 
+                  className="input input-bordered bg-white/10 border-rose-500/30 text-white placeholder-gray-300" 
+                  type="number" 
+                  value={appId} 
+                  onChange={(e) => setAppId(e.target.value === '' ? '' : Number(e.target.value))} 
+                  placeholder="Enter Bank App ID" 
+                />
+              </div>
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text font-medium text-white">Deploy New Bank</span>
+                </label>
+                <button 
+                  className={`btn bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white border-none ${deploying ? 'loading' : ''}`}
+                  disabled={deploying || !activeAddress} 
+                  onClick={(e) => { e.preventDefault(); void deployContract() }}
+                >
+                  {deploying ? (
+                    <span className="flex items-center gap-2">
+                      <span className="loading loading-spinner loading-sm"></span>
+                      Deploying...
+                    </span>
+                  ) : (
+                    '🚀 Deploy Bank'
+                  )}
+                </button>
+              </div>
+            </div>
+            
             {appAddress && (
-              <div className="alert alert-info text-xs break-all">App Address: {appAddress}</div>
+              <div className="mt-4 p-3 bg-black/20 rounded-lg">
+                <div className="text-sm">
+                  <span className="text-gray-400">App Address: </span>
+                  <span className="text-white font-mono text-xs break-all">{appAddress}</span>
+                </div>
+              </div>
             )}
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="flex flex-col gap-2 p-4 rounded-lg bg-white">
-              <div className="font-semibold">Deploy (optional)</div>
-              <button className={`btn btn-accent ${deploying ? 'loading' : ''}`} disabled={deploying || !activeAddress} onClick={(e) => { e.preventDefault(); void deployContract() }}>Deploy Bank</button>
-              <p className="text-xs text-gray-500">Or enter an existing App ID above.</p>
-            </div>
-            <div className="flex flex-col gap-2 p-4 rounded-lg bg-white">
-              <div className="font-semibold">Deposit</div>
-              <input className="input input-bordered" placeholder="Memo (optional)" value={memo} onChange={(e) => setMemo(e.target.value)} />
-              <input className="input input-bordered" placeholder="Amount (Algos)" type="number" step="0.000001" value={depositAmount} onChange={(e) => setDepositAmount(e.target.value)} />
-              <button className={`btn btn-primary ${loading ? 'loading' : ''}`} disabled={loading || !activeAddress || !appId} onClick={(e) => { e.preventDefault(); void deposit() }}>Deposit</button>
-            </div>
-            <div className="flex flex-col gap-2 p-4 rounded-lg bg-white">
-              <div className="font-semibold">Withdraw</div>
-              <input className="input input-bordered" placeholder="Amount (Algos)" type="number" step="0.000001" value={withdrawAmount} onChange={(e) => setWithdrawAmount(e.target.value)} />
-              <button className={`btn btn-secondary ${loading ? 'loading' : ''}`} disabled={loading || !activeAddress || !appId} onClick={(e) => { e.preventDefault(); void withdraw() }}>Withdraw</button>
-            </div>
-          </div>
-
-          <div className="divider">Statements</div>
-          <div className="max-h-56 overflow-auto bg-white rounded-lg p-2">
-            {statements.length === 0 ? (
-              <div className="text-sm text-gray-500">No transactions found.</div>
-            ) : (
-              <ul className="text-sm">
-                {statements.map((s) => (
-                  <li key={s.id} className="py-1 flex justify-between items-center border-b last:border-0">
-                    <span className={s.type === 'deposit' ? 'text-emerald-600' : 'text-amber-700'}>{s.type}</span>
-                    <span>round {s.round}</span>
-                    {/* <span>{s.amount} Algos</span> */}
-                    <a 
-                      href={`https://lora.algokit.io/testnet/transaction/${s.id}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-600 hover:text-blue-800 underline text-xs"
-                    >
-                      View
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-
-          <div className="divider">Depositors</div>
-          <div className="max-h-56 overflow-auto bg-white rounded-lg p-2">
-            {depositors.length === 0 ? (
-              <div className="text-sm text-gray-500">No depositors yet.</div>
-            ) : (
-              <ul className="text-sm">
-                {depositors.map((d) => (
-                  <li key={d.address} className="py-1 flex justify-between border-b last:border-0">
-                    <span className="truncate mr-2">{d.address}</span>
-                    <span>{d.amount} Algos</span>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-
-          <div className="modal-action">
-            <button className="btn" onClick={closeModal} disabled={loading}>Close</button>
-            <button className="btn btn-outline" onClick={(e) => { e.preventDefault(); void refreshStatements(); void refreshDepositors() }}>Refresh</button>
           </div>
         </div>
-      </form>
+
+        {/* Tabs */}
+        <div className="tabs tabs-boxed mb-6 bg-white/10 backdrop-blur-sm">
+          <button 
+            className={`tab ${activeTab === 'deposit' ? 'tab-active bg-gradient-to-r from-green-500 to-emerald-500 text-white' : 'text-gray-300'}`}
+            onClick={() => setActiveTab('deposit')}
+          >
+            💰 Deposit
+          </button>
+          <button 
+            className={`tab ${activeTab === 'withdraw' ? 'tab-active bg-gradient-to-r from-yellow-500 to-orange-500 text-white' : 'text-gray-300'}`}
+            onClick={() => setActiveTab('withdraw')}
+          >
+            💸 Withdraw
+          </button>
+          <button 
+            className={`tab ${activeTab === 'statements' ? 'tab-active bg-gradient-to-r from-blue-500 to-cyan-500 text-white' : 'text-gray-300'}`}
+            onClick={() => setActiveTab('statements')}
+          >
+            📊 Statements
+          </button>
+          <button 
+            className={`tab ${activeTab === 'depositors' ? 'tab-active bg-gradient-to-r from-purple-500 to-pink-500 text-white' : 'text-gray-300'}`}
+            onClick={() => setActiveTab('depositors')}
+          >
+            👥 Depositors
+          </button>
+        </div>
+
+        {/* Deposit Tab */}
+        {activeTab === 'deposit' && (
+          <div className="space-y-4">
+            <div className="form-control">
+              <label className="label">
+                <span className="label-text font-medium text-white">Memo (Optional)</span>
+              </label>
+              <input 
+                className="input input-bordered bg-white/10 border-green-500/30 text-white placeholder-gray-300" 
+                placeholder="Add a note for this deposit..." 
+                value={memo} 
+                onChange={(e) => setMemo(e.target.value)} 
+              />
+            </div>
+            
+            <div className="form-control">
+              <label className="label">
+                <span className="label-text font-medium text-white">Amount (ALGO)</span>
+              </label>
+              <input 
+                className="input input-bordered bg-white/10 border-green-500/30 text-white placeholder-gray-300 text-lg" 
+                placeholder="0.00" 
+                type="number" 
+                step="0.000001" 
+                value={depositAmount} 
+                onChange={(e) => setDepositAmount(e.target.value)} 
+              />
+              
+              <div className="mt-3">
+                <label className="label">
+                  <span className="label-text-alt text-gray-400">Quick amounts:</span>
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {quickDepositAmounts.map((amount) => (
+                    <button
+                      key={amount}
+                      className="btn btn-sm bg-gradient-to-r from-green-500/20 to-emerald-500/20 border-green-400/30 text-green-300 hover:from-green-500/30 hover:to-emerald-500/30"
+                      onClick={() => setDepositAmount(amount)}
+                    >
+                      {amount} ALGO
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <button 
+              className={`btn btn-lg w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white border-none ${loading ? 'loading' : ''}`}
+              disabled={loading || !activeAddress || !appId || !depositAmount} 
+              onClick={(e) => { e.preventDefault(); void deposit() }}
+            >
+              {loading ? (
+                <span className="flex items-center gap-2">
+                  <span className="loading loading-spinner loading-sm"></span>
+                  Depositing...
+                </span>
+              ) : (
+                '💰 Deposit to Bank'
+              )}
+            </button>
+          </div>
+        )}
+
+        {/* Withdraw Tab */}
+        {activeTab === 'withdraw' && (
+          <div className="space-y-4">
+            <div className="form-control">
+              <label className="label">
+                <span className="label-text font-medium text-white">Amount (ALGO)</span>
+              </label>
+              <input 
+                className="input input-bordered bg-white/10 border-yellow-500/30 text-white placeholder-gray-300 text-lg" 
+                placeholder="0.00" 
+                type="number" 
+                step="0.000001" 
+                value={withdrawAmount} 
+                onChange={(e) => setWithdrawAmount(e.target.value)} 
+              />
+              
+              <div className="mt-3">
+                <label className="label">
+                  <span className="label-text-alt text-gray-400">Quick amounts:</span>
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {quickWithdrawAmounts.map((amount) => (
+                    <button
+                      key={amount}
+                      className="btn btn-sm bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border-yellow-400/30 text-yellow-300 hover:from-yellow-500/30 hover:to-orange-500/30"
+                      onClick={() => setWithdrawAmount(amount)}
+                    >
+                      {amount} ALGO
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="alert bg-gradient-to-r from-yellow-600/20 to-orange-600/20 border border-yellow-500/30">
+              <div className="flex items-start gap-3">
+                <div className="text-yellow-400">⚠️</div>
+                <div className="text-sm">
+                  <p className="font-medium text-white">Withdrawal Notice</p>
+                  <p className="text-gray-300">You can only withdraw funds you have previously deposited.</p>
+                </div>
+              </div>
+            </div>
+
+            <button 
+              className={`btn btn-lg w-full bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-700 hover:to-orange-700 text-white border-none ${loading ? 'loading' : ''}`}
+              disabled={loading || !activeAddress || !appId || !withdrawAmount} 
+              onClick={(e) => { e.preventDefault(); void withdraw() }}
+            >
+              {loading ? (
+                <span className="flex items-center gap-2">
+                  <span className="loading loading-spinner loading-sm"></span>
+                  Withdrawing...
+                </span>
+              ) : (
+                '💸 Withdraw from Bank'
+              )}
+            </button>
+          </div>
+        )}
+
+        {/* Statements Tab */}
+        {activeTab === 'statements' && (
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <h4 className="font-semibold text-white">Transaction History</h4>
+              <button 
+                className="btn btn-sm bg-gradient-to-r from-blue-500/20 to-cyan-500/20 border-blue-400/30 text-blue-300 hover:from-blue-500/30 hover:to-cyan-500/30" 
+                onClick={(e) => { e.preventDefault(); void refreshStatements() }}
+              >
+                🔄 Refresh
+              </button>
+            </div>
+            
+            <div className="card bg-gradient-to-br from-blue-600/20 to-cyan-600/20 border border-blue-500/30 max-h-96 overflow-auto">
+              <div className="card-body p-4">
+                {statements.length === 0 ? (
+                  <div className="text-center text-gray-400 py-8">
+                    <div className="text-4xl mb-2">📋</div>
+                    <p>No transactions found</p>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {statements.map((s) => (
+                      <div key={s.id} className="flex justify-between items-center p-3 bg-black/20 rounded-lg">
+                        <div className="flex items-center gap-3">
+                          <div className={`text-2xl ${s.type === 'deposit' ? 'text-green-400' : 'text-yellow-400'}`}>
+                            {s.type === 'deposit' ? '💰' : '💸'}
+                          </div>
+                          <div>
+                            <div className="font-medium text-white capitalize">{s.type}</div>
+                            <div className="text-sm text-gray-400">Round {s.round}</div>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="font-medium text-white">{s.amount} ALGO</div>
+                          <a 
+                            href={`https://testnet.algoexplorer.io/tx/${s.id}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-400 hover:text-blue-300 text-sm underline"
+                          >
+                            View Explorer
+                          </a>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Depositors Tab */}
+        {activeTab === 'depositors' && (
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <h4 className="font-semibold text-white">All Depositors</h4>
+              <button 
+                className="btn btn-sm bg-gradient-to-r from-purple-500/20 to-pink-500/20 border-purple-400/30 text-purple-300 hover:from-purple-500/30 hover:to-pink-500/30" 
+                onClick={(e) => { e.preventDefault(); void refreshDepositors() }}
+              >
+                🔄 Refresh
+              </button>
+            </div>
+            
+            <div className="card bg-gradient-to-br from-purple-600/20 to-pink-600/20 border border-purple-500/30 max-h-96 overflow-auto">
+              <div className="card-body p-4">
+                {depositors.length === 0 ? (
+                  <div className="text-center text-gray-400 py-8">
+                    <div className="text-4xl mb-2">👥</div>
+                    <p>No depositors yet</p>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {depositors.map((d) => (
+                      <div key={d.address} className="flex justify-between items-center p-3 bg-black/20 rounded-lg">
+                        <div className="flex items-center gap-3">
+                          <div className="text-2xl">👤</div>
+                          <div>
+                            <div className="font-mono text-sm text-white">
+                              {d.address.slice(0, 8)}...{d.address.slice(-8)}
+                            </div>
+                            <a 
+                              href={`https://testnet.algoexplorer.io/address/${d.address}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-purple-400 hover:text-purple-300 text-xs underline"
+                            >
+                              View Address
+                            </a>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="font-medium text-green-400">{d.amount} ALGO</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Actions */}
+        <div className="modal-action mt-6">
+          <button 
+            className="btn btn-ghost text-gray-300 hover:bg-white/10" 
+            onClick={closeModal} 
+            disabled={loading}
+          >
+            Close
+          </button>
+        </div>
+      </div>
     </dialog>
   )
 }
 
 export default Bank
-
-
