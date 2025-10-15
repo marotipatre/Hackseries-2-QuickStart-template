@@ -1,0 +1,30 @@
+[
+  {
+    "id": "cyber-punk",
+    "name": "Cyber Punk Avatar",
+    "description": "Futuristic digital avatar with neon aesthetics",
+    "image": "/src/assets/nft-templates/cyber-punk.png",
+    "category": "Avatar"
+  },
+  {
+    "id": "algo-gem",
+    "name": "Algorand Gem",
+    "description": "Precious digital gem powered by Algorand blockchain",
+    "image": "/src/assets/nft-templates/algo-gem.png",
+    "category": "Collectible"
+  },
+  {
+    "id": "space-explorer",
+    "name": "Space Explorer",
+    "description": "Cosmic adventurer exploring the blockchain universe",
+    "image": "/src/assets/nft-templates/space-explorer.png",
+    "category": "Character"
+  },
+  {
+    "id": "digital-art",
+    "name": "Abstract Digital Art",
+    "description": "Modern abstract composition with vibrant colors",
+    "image": "/src/assets/nft-templates/digital-art.png",
+    "category": "Art"
+  }
+]
