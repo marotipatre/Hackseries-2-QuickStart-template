@@ -50,8 +50,10 @@
   },
   "scripts": {
     "generate:app-clients": "algokit project link --all",
-    "dev": "vite",
-    "build": "vite build",
+    "dev": "pnpm run dev:vite",
+    "build": "pnpm run build:vite",
+    "dev:vite": "vite",
+    "build:vite": "vite build",
     "test": "jest --coverage --passWithNoTests",
     "playwright:test": "playwright test",
     "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
