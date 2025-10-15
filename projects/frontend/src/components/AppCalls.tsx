@@ -1,9 +1,12 @@
 import { useWallet } from '@txnlab/use-wallet-react'
 import { useSnackbar } from 'notistack'
 import { useEffect, useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Zap, Trophy, Target, X, Sparkles } from 'lucide-react'
 import { CounterClient } from '../contracts/Counter'
 import { getAlgodConfigFromViteEnvironment, getIndexerConfigFromViteEnvironment } from '../utils/network/getAlgoClientConfigs'
 import { AlgorandClient } from '@algorandfoundation/algokit-utils'
+import { openInExplorerPopup } from '../utils/explorer'
 
 interface AppCallsInterface {
   openModal: boolean
@@ -16,6 +19,10 @@ const AppCalls = ({ openModal, setModalState }: AppCallsInterface) => {
   const FIXED_APP_ID = 747652603
   const [appId, setAppId] = useState<number | null>(FIXED_APP_ID)
   const [currentCount, setCurrentCount] = useState<number>(0)
+  const [clickEffect, setClickEffect] = useState<boolean>(false)
+  const [streak, setStreak] = useState<number>(0)
+  const [showCelebration, setShowCelebration] = useState<boolean>(false)
+  const [lastClickTime, setLastClickTime] = useState<number>(0)
   const { enqueueSnackbar } = useSnackbar()
   const { activeAccount, activeAddress, transactionSigner: TransactionSigner } = useWallet()
 
@@ -94,6 +101,15 @@ const AppCalls = ({ openModal, setModalState }: AppCallsInterface) => {
     }
 
     setLoading(true)
+    setClickEffect(true)
+    
+    // Calculate streak
+    const now = Date.now()
+    const timeDiff = now - lastClickTime
+    const newStreak = timeDiff < 5000 ? streak + 1 : 1
+    setStreak(newStreak)
+    setLastClickTime(now)
+    
     try {
       const counterClient = new CounterClient({
         appId: BigInt(appId),
@@ -102,74 +118,208 @@ const AppCalls = ({ openModal, setModalState }: AppCallsInterface) => {
       })
 
       // Increment the counter
-      await counterClient.send.incrCounter({args: [], sender: activeAddress ?? undefined})
+      const result = await counterClient.send.incrCounter({args: [], sender: activeAddress ?? undefined})
       
       // Fetch and set updated count
       const count = await fetchCount(appId)
       setCurrentCount(count)
       
-      enqueueSnackbar(`Counter incremented! New count: ${count}`, { 
-        variant: 'success' 
-      })
+      // Show celebration for milestones
+      if (count % 10 === 0 || newStreak >= 5) {
+        setShowCelebration(true)
+        setTimeout(() => setShowCelebration(false), 2000)
+      }
+      
+      // Show success with explorer link
+      if (result.transaction.txID) {
+        enqueueSnackbar(`🎉 Counter incremented! New count: ${count}`, { variant: 'success' })
+        // Show explorer link option immediately (no setTimeout to avoid popup blocker)
+        if (window.confirm(`Counter incremented! TX ID: ${result.transaction.txID}\n\nWould you like to view the transaction on the explorer?`)) {
+          openInExplorerPopup('transaction', result.transaction.txID)
+        }
+      } else {
+        enqueueSnackbar(`🎉 Counter incremented! New count: ${count}`, { variant: 'success' })
+      }
     } catch (e) {
       enqueueSnackbar(`Error incrementing counter: ${(e as Error).message}`, { variant: 'error' })
+      setStreak(0)
     } finally {
       setLoading(false)
+      setTimeout(() => setClickEffect(false), 300)
     }
   }
 
   return (
-    <dialog id="appcalls_modal" className={`modal ${openModal ? 'modal-open' : ''} bg-slate-200`}>
-      <form method="dialog" className="modal-box">
-        <h3 className="font-bold text-lg">Counter Contract</h3>
-        <br />
-        
-        <div className="flex flex-col gap-4">
-          {appId && (
-            <div className="alert alert-info flex flex-col gap-1">
-              <span>Current App ID: {appId}</span>
-              <span>Current Count: {currentCount}</span>
+    <AnimatePresence>
+      {openModal && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+          onClick={() => setModalState(false)}
+        >
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.9, opacity: 0 }}
+            className="glass-dark rounded-2xl w-full max-w-md overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between p-6 border-b border-white/10">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-gradient-to-r from-orange-500 to-amber-500 rounded-lg flex items-center justify-center">
+                  <Target className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-white">Counter Game</h3>
+                  <p className="text-gray-400 text-sm">Click to increment the global counter!</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setModalState(false)}
+                disabled={loading}
+                className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5 text-gray-400" />
+              </button>
             </div>
-          )}
-          
-          {/*
-          <div className="flex flex-col gap-2">
-            <button 
-              className={`btn btn-primary ${deploying ? 'loading' : ''}`}
-              onClick={deployContract}
-              disabled={deploying || loading}
-            >
-              {deploying ? 'Deploying...' : 'Deploy Contract'}
-            </button>
-            <p className="text-sm">Run this once to deploy the contract</p>
-          </div>
-          
-          <div className="divider">OR</div>
-          */}
-          
-          <div className="flex flex-col gap-2">
-            <button 
-              className={`btn btn-secondary ${loading ? 'loading' : ''}`}
-              onClick={incrementCounter}
-              disabled={loading || !appId}
-            >
-              {loading ? 'Processing...' : 'Increment Counter'}
-            </button>
-            <p className="text-sm">Requires deployed contract</p>
-          </div>
-          
-          <div className="modal-action">
-            <button 
-              className="btn" 
-              onClick={() => setModalState(false)}
-              disabled={loading}
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      </form>
-    </dialog>
+
+            <div className="p-6">
+              {/* Game Stats */}
+              <div className="grid grid-cols-2 gap-4 mb-6">
+                <div className="glass rounded-lg p-4 text-center">
+                  <div className="text-2xl font-bold text-orange-400">{currentCount}</div>
+                  <div className="text-gray-400 text-sm">Global Count</div>
+                </div>
+                <div className="glass rounded-lg p-4 text-center">
+                  <div className="text-2xl font-bold text-purple-400">{streak}</div>
+                  <div className="text-gray-400 text-sm">Your Streak</div>
+                </div>
+              </div>
+
+              {/* Game Button */}
+              <div className="text-center mb-6">
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  animate={clickEffect ? { scale: [1, 1.1, 1] } : {}}
+                  onClick={incrementCounter}
+                  disabled={loading || !appId}
+                  className={`relative w-32 h-32 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-bold text-lg shadow-2xl transition-all disabled:opacity-50 ${
+                    loading ? 'animate-pulse' : ''
+                  }`}
+                >
+                  {loading ? (
+                    <div className="w-8 h-8 border-3 border-white/30 border-t-white rounded-full animate-spin mx-auto" />
+                  ) : (
+                    <>
+                      <Zap className="w-8 h-8 mx-auto mb-1" />
+                      CLICK!
+                    </>
+                  )}
+                  
+                  {/* Click effect particles */}
+                  {clickEffect && (
+                    <div className="absolute inset-0 pointer-events-none">
+                      {[...Array(6)].map((_, i) => (
+                        <motion.div
+                          key={i}
+                          initial={{ scale: 0, opacity: 1 }}
+                          animate={{ 
+                            scale: [0, 1, 0], 
+                            opacity: [1, 1, 0],
+                            x: [0, (Math.random() - 0.5) * 100],
+                            y: [0, (Math.random() - 0.5) * 100]
+                          }}
+                          transition={{ duration: 0.6, delay: i * 0.1 }}
+                          className="absolute top-1/2 left-1/2 w-2 h-2 bg-yellow-400 rounded-full"
+                        />
+                      ))}
+                    </div>
+                  )}
+                </motion.button>
+              </div>
+
+              {/* Streak Indicator */}
+              {streak > 1 && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="text-center mb-4"
+                >
+                  <div className="inline-flex items-center gap-2 bg-purple-500/20 border border-purple-500/30 text-purple-300 px-4 py-2 rounded-full">
+                    <Sparkles className="w-4 h-4" />
+                    <span className="font-semibold">{streak}x Streak!</span>
+                  </div>
+                </motion.div>
+              )}
+
+              {/* App Info */}
+              <div className="glass rounded-lg p-4 mb-4">
+                <div className="text-center">
+                  <p className="text-gray-400 text-sm mb-2">Smart Contract</p>
+                  <p className="text-white font-mono text-sm">App ID: {appId}</p>
+                </div>
+              </div>
+
+              {/* Achievements */}
+              <div className="grid grid-cols-3 gap-2">
+                <div className={`text-center p-2 rounded-lg transition-colors ${
+                  currentCount >= 10 ? 'bg-yellow-500/20 text-yellow-300' : 'bg-gray-500/20 text-gray-500'
+                }`}>
+                  <Trophy className="w-4 h-4 mx-auto mb-1" />
+                  <div className="text-xs">10+ Clicks</div>
+                </div>
+                <div className={`text-center p-2 rounded-lg transition-colors ${
+                  streak >= 5 ? 'bg-purple-500/20 text-purple-300' : 'bg-gray-500/20 text-gray-500'
+                }`}>
+                  <Zap className="w-4 h-4 mx-auto mb-1" />
+                  <div className="text-xs">5x Streak</div>
+                </div>
+                <div className={`text-center p-2 rounded-lg transition-colors ${
+                  currentCount >= 100 ? 'bg-green-500/20 text-green-300' : 'bg-gray-500/20 text-gray-500'
+                }`}>
+                  <Target className="w-4 h-4 mx-auto mb-1" />
+                  <div className="text-xs">Century</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Celebration Effect */}
+            <AnimatePresence>
+              {showCelebration && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0 }}
+                  className="absolute inset-0 flex items-center justify-center pointer-events-none"
+                >
+                  <div className="text-6xl animate-bounce">🎉</div>
+                  <div className="absolute inset-0">
+                    {[...Array(20)].map((_, i) => (
+                      <motion.div
+                        key={i}
+                        initial={{ opacity: 1, scale: 0 }}
+                        animate={{ 
+                          opacity: [1, 0],
+                          scale: [0, 1],
+                          x: (Math.random() - 0.5) * 400,
+                          y: (Math.random() - 0.5) * 400
+                        }}
+                        transition={{ duration: 2, delay: Math.random() * 0.5 }}
+                        className="absolute top-1/2 left-1/2 w-2 h-2 bg-yellow-400 rounded-full"
+                      />
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   )
 }
 
