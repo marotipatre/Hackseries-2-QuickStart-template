@@ -5,6 +5,10 @@ import { useMemo, useState } from 'react'
 import { getAlgodConfigFromViteEnvironment } from '../utils/network/getAlgoClientConfigs'
 import { ipfsHttpUrl, pinFileToIPFS, pinJSONToIPFS } from '../utils/pinata'
 import templatesData from '../assets/nft-templates/templates.json'
+import cyberPunkImg from '../assets/cyber-punk.png'
+import algoGemImg from '../assets/algo-gem.png'
+import spaceExplorerImg from '../assets/space-explorer.png'
+import digitalArtImg from '../assets/digital-art.png'
 
 interface MintNFTProps {
   openModal: boolean
@@ -24,6 +28,14 @@ const MintNFT = ({ openModal, closeModal }: MintNFTProps) => {
   const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(null)
   const [selectedStyle, setSelectedStyle] = useState('realistic')
   const [imageSource, setImageSource] = useState<'template' | 'ai' | 'upload' | null>(null)
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null)
+
+  const templateImages: { [key: string]: string } = {
+    'cyber-punk': cyberPunkImg,
+    'algo-gem': algoGemImg,
+    'space-explorer': spaceExplorerImg,
+    'digital-art': digitalArtImg
+  }
 
   const artStyles = [
     { id: 'realistic', name: 'Realistic', prompt: 'photorealistic, high quality, detailed' },
@@ -99,6 +111,7 @@ const MintNFT = ({ openModal, closeModal }: MintNFTProps) => {
       const file = new File([blob], `ai-generated-${Date.now()}.png`, { type: 'image/png' })
       setFile(file)
       setImageSource('ai')
+      setSelectedTemplateId(null)
       
       enqueueSnackbar('🎨 AI image generated successfully!', { variant: 'success' })
     } catch (error) {
@@ -109,11 +122,27 @@ const MintNFT = ({ openModal, closeModal }: MintNFTProps) => {
     }
   }
 
-  const useTemplate = (template: any) => {
+  const useTemplate = async (template: any) => {
     setName(template.name)
     setDescription(template.description)
     setImageSource('template')
+    setSelectedTemplateId(template.id)
     
+    try {
+      const imageUrl = templateImages[template.id]
+      if (imageUrl) {
+        const response = await fetch(imageUrl)
+        const blob = await response.blob()
+        const file = new File([blob], `${template.id}.png`, { type: 'image/png' })
+        setFile(file)
+        setGeneratedImageUrl(imageUrl)
+        return
+      }
+    } catch (error) {
+      console.log('Template image not found, creating placeholder')
+    }
+    
+    // Fallback to canvas placeholder
     const canvas = document.createElement('canvas')
     canvas.width = 512
     canvas.height = 512
@@ -151,6 +180,7 @@ const MintNFT = ({ openModal, closeModal }: MintNFTProps) => {
     setFile(selectedFile)
     setGeneratedImageUrl(URL.createObjectURL(selectedFile))
     setImageSource('upload')
+    setSelectedTemplateId(null)
   }
 
   const nextStep = () => {
@@ -248,6 +278,7 @@ const MintNFT = ({ openModal, closeModal }: MintNFTProps) => {
     setFile(null)
     setGeneratedImageUrl(null)
     setImageSource(null)
+    setSelectedTemplateId(null)
     setName('AlgoNFT')
     setDescription('My first NFT!')
     setAiPrompt('')
@@ -313,14 +344,26 @@ const MintNFT = ({ openModal, closeModal }: MintNFTProps) => {
                       onClick={() => useTemplate(template)}
                     >
                       <div className="card-body p-3 text-center">
-                        <div className="text-2xl mb-1">🎨</div>
+                        <div className="w-16 h-16 mx-auto mb-2 rounded-lg overflow-hidden bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+                          <img 
+                            src={template.image.replace('/src', '')}
+                            alt={template.name}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement
+                              target.style.display = 'none'
+                              target.nextElementSibling!.classList.remove('hidden')
+                            }}
+                          />
+                          <div className="text-2xl text-white hidden">🎨</div>
+                        </div>
                         <h6 className="font-bold text-xs text-white">{template.name}</h6>
                         <p className="text-xs text-gray-300">{template.category}</p>
                       </div>
                     </div>
                   ))}
                 </div>
-                <p className="text-sm text-gray-300 text-center">Click any template to use it</p>
+                <p className="text-sm text-gray-300 text-center">Click any template to use it as your NFT</p>
               </div>
 
               {/* AI Generation */}
