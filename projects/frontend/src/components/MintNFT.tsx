@@ -79,7 +79,7 @@ const MintNFT = ({ openModal, closeModal }: MintNFTProps) => {
       const selectedStyleData = artStyles.find(s => s.id === selectedStyle)
       const fullPrompt = `${aiPrompt}, ${selectedStyleData?.prompt || 'high quality'}`
       
-      const response = await fetch('https://api-inference.huggingface.co/models/black-forest-labs/FLUX.1-schnell', {
+      const response = await fetch('https://router.huggingface.co/hf-inference/models/black-forest-labs/FLUX.1-schnell', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${import.meta.env.VITE_HUGGINGFACE_API_KEY}`,
