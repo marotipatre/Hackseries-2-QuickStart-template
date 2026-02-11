@@ -1,0 +1,63 @@
+#pragma version 10
+#pragma typetrack false
+
+// smart_contracts.commit_fi.contract.CommitFi.__algopy_entrypoint_with_init() -> uint64:
+main:
+    intcblock 0
+    txn ApplicationID
+    bnz main_after_if_else@2
+    // smart_contracts/commit_fi/contract.py:26-27
+    // # Set default values for global state
+    // self.creator = Global.creator_address  # Deployer becomes creator
+    pushbytes "creator"
+    global CreatorAddress
+    app_global_put
+    // smart_contracts/commit_fi/contract.py:28
+    // self.stake_amount = UInt64(0)  # To be set by creator
+    pushbytes "stake_amount"
+    intc_0 // 0
+    app_global_put
+    // smart_contracts/commit_fi/contract.py:29
+    // self.deadline = UInt64(0)  # To be set by creator
+    pushbytes "deadline"
+    intc_0 // 0
+    app_global_put
+    // smart_contracts/commit_fi/contract.py:30
+    // self.max_participants = UInt64(10)  # Default max participants
+    pushbytes "max_participants"
+    pushint 10 // 10
+    app_global_put
+    // smart_contracts/commit_fi/contract.py:31
+    // self.current_participants = UInt64(0)
+    pushbytes "current_participants"
+    intc_0 // 0
+    app_global_put
+    // smart_contracts/commit_fi/contract.py:32
+    // self.total_pooled_stake = UInt64(0)
+    pushbytes "total_pooled_stake"
+    intc_0 // 0
+    app_global_put
+    // smart_contracts/commit_fi/contract.py:33
+    // self.challenge_status = UInt64(0)  # Start in Setup mode
+    pushbytes "challenge_status"
+    intc_0 // 0
+    app_global_put
+
+main_after_if_else@2:
+    // smart_contracts/commit_fi/contract.py:5
+    // class CommitFi(ARC4Contract):
+    txn NumAppArgs
+    bnz main_after_if_else@6
+    txn OnCompletion
+    bnz main_after_if_else@6
+    txn ApplicationID
+    !
+    assert // can only call when creating
+    pushint 1 // 1
+    return
+
+main_after_if_else@6:
+    // smart_contracts/commit_fi/contract.py:5
+    // class CommitFi(ARC4Contract):
+    intc_0 // 0
+    return

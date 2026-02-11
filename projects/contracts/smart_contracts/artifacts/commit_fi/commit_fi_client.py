@@ -19,7 +19,7 @@ from algosdk.v2client.models import SimulateTraceConfig
 import algokit_utils
 from algokit_utils import AlgorandClient as _AlgoKitAlgorandClient
 
-_APP_SPEC_JSON = r"""{"arcs": [22, 28], "bareActions": {"call": [], "create": ["NoOp"]}, "methods": [{"actions": {"call": ["NoOp"], "create": []}, "args": [{"type": "string", "name": "memo"}, {"type": "pay", "name": "pay_txn"}], "name": "deposit", "returns": {"type": "uint64"}, "desc": "Accepts a payment into the app escrow and records sender's deposited balance", "events": [], "readonly": false, "recommendations": {}}, {"actions": {"call": ["NoOp"], "create": []}, "args": [{"type": "uint64", "name": "amount"}], "name": "withdraw", "returns": {"type": "uint64"}, "desc": "Sends ALGO back to the caller from their recorded balance", "events": [], "readonly": false, "recommendations": {}}], "name": "Bank", "state": {"keys": {"box": {}, "global": {"total_deposit": {"key": "dG90YWxfZGVwb3NpdA==", "keyType": "AVMString", "valueType": "AVMUint64"}}, "local": {}}, "maps": {"box": {"deposits": {"keyType": "address", "valueType": "uint64", "prefix": ""}}, "global": {}, "local": {}}, "schema": {"global": {"bytes": 0, "ints": 1}, "local": {"bytes": 0, "ints": 0}}}, "structs": {}, "byteCode": {"approval": "CiACAQAmAg10b3RhbF9kZXBvc2l0BBUffHUxGEAAAygjZzEbQQBNggIEn1l8MgQxIUF2NhoAjgIAFwACI0MxGRREMRhENhoBF4gAeBYpTFCwIkMxGRREMRhENhoBVwIAMRYiCUk4ECISRIgAEhYpTFCwIkMxGUD/wzEYFEQiQ4oCAYv/OAcyChJEi/84CElEi/84AEm+TBdMQQAeiwKLAAgWiwFMvyMoZUSLAAgoTGeLAb5MF0xEjACJiwAWiwFMv0L/4ooBATEAvkwXTESL/0SL/0sBDkSxMQCL/7IIsgcishAjsgGzi/8JSUAACDEAvEiLAEyJMQCLABa/Qv/z", "clear": "CoEBQw=="}, "compilerInfo": {"compiler": "puya", "compilerVersion": {"major": 4, "minor": 7, "patch": 0}}, "events": [], "networks": {}, "source": {"approval": "I3ByYWdtYSB2ZXJzaW9uIDEwCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBzbWFydF9jb250cmFjdHMuYmFuay5jb250cmFjdC5CYW5rLl9fYWxnb3B5X2VudHJ5cG9pbnRfd2l0aF9pbml0KCkgLT4gdWludDY0OgptYWluOgogICAgaW50Y2Jsb2NrIDEgMAogICAgYnl0ZWNibG9jayAidG90YWxfZGVwb3NpdCIgMHgxNTFmN2M3NQogICAgdHhuIEFwcGxpY2F0aW9uSUQKICAgIGJueiBtYWluX2FmdGVyX2lmX2Vsc2VAMgogICAgLy8gc21hcnRfY29udHJhY3RzL2JhbmsvY29udHJhY3QucHk6MTEKICAgIC8vIHNlbGYudG90YWxfZGVwb3NpdCA9IFVJbnQ2NCgwKQogICAgYnl0ZWNfMCAvLyAidG90YWxfZGVwb3NpdCIKICAgIGludGNfMSAvLyAwCiAgICBhcHBfZ2xvYmFsX3B1dAoKbWFpbl9hZnRlcl9pZl9lbHNlQDI6CiAgICAvLyBzbWFydF9jb250cmFjdHMvYmFuay9jb250cmFjdC5weTo1CiAgICAvLyBjbGFzcyBCYW5rKEFSQzRDb250cmFjdCk6CiAgICB0eG4gTnVtQXBwQXJncwogICAgYnogbWFpbl9iYXJlX3JvdXRpbmdANwogICAgcHVzaGJ5dGVzcyAweDlmNTk3YzMyIDB4MzEyMTQxNzYgLy8gbWV0aG9kICJkZXBvc2l0KHN0cmluZyxwYXkpdWludDY0IiwgbWV0aG9kICJ3aXRoZHJhdyh1aW50NjQpdWludDY0IgogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMAogICAgbWF0Y2ggbWFpbl9kZXBvc2l0X3JvdXRlQDUgbWFpbl93aXRoZHJhd19yb3V0ZUA2CgptYWluX2FmdGVyX2lmX2Vsc2VAOToKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9iYW5rL2NvbnRyYWN0LnB5OjUKICAgIC8vIGNsYXNzIEJhbmsoQVJDNENvbnRyYWN0KToKICAgIGludGNfMSAvLyAwCiAgICByZXR1cm4KCm1haW5fd2l0aGRyYXdfcm91dGVANjoKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9iYW5rL2NvbnRyYWN0LnB5OjI4CiAgICAvLyBAYWJpbWV0aG9kKCkKICAgIHR4biBPbkNvbXBsZXRpb24KICAgICEKICAgIGFzc2VydCAvLyBPbkNvbXBsZXRpb24gaXMgbm90IE5vT3AKICAgIHR4biBBcHBsaWNhdGlvbklECiAgICBhc3NlcnQgLy8gY2FuIG9ubHkgY2FsbCB3aGVuIG5vdCBjcmVhdGluZwogICAgLy8gc21hcnRfY29udHJhY3RzL2JhbmsvY29udHJhY3QucHk6NQogICAgLy8gY2xhc3MgQmFuayhBUkM0Q29udHJhY3QpOgogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMQogICAgYnRvaQogICAgLy8gc21hcnRfY29udHJhY3RzL2JhbmsvY29udHJhY3QucHk6MjgKICAgIC8vIEBhYmltZXRob2QoKQogICAgY2FsbHN1YiB3aXRoZHJhdwogICAgaXRvYgogICAgYnl0ZWNfMSAvLyAweDE1MWY3Yzc1CiAgICBzd2FwCiAgICBjb25jYXQKICAgIGxvZwogICAgaW50Y18wIC8vIDEKICAgIHJldHVybgoKbWFpbl9kZXBvc2l0X3JvdXRlQDU6CiAgICAvLyBzbWFydF9jb250cmFjdHMvYmFuay9jb250cmFjdC5weToxMwogICAgLy8gQGFiaW1ldGhvZCgpCiAgICB0eG4gT25Db21wbGV0aW9uCiAgICAhCiAgICBhc3NlcnQgLy8gT25Db21wbGV0aW9uIGlzIG5vdCBOb09wCiAgICB0eG4gQXBwbGljYXRpb25JRAogICAgYXNzZXJ0IC8vIGNhbiBvbmx5IGNhbGwgd2hlbiBub3QgY3JlYXRpbmcKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9iYW5rL2NvbnRyYWN0LnB5OjUKICAgIC8vIGNsYXNzIEJhbmsoQVJDNENvbnRyYWN0KToKICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDEKICAgIGV4dHJhY3QgMiAwCiAgICB0eG4gR3JvdXBJbmRleAogICAgaW50Y18wIC8vIDEKICAgIC0KICAgIGR1cAogICAgZ3R4bnMgVHlwZUVudW0KICAgIGludGNfMCAvLyBwYXkKICAgID09CiAgICBhc3NlcnQgLy8gdHJhbnNhY3Rpb24gdHlwZSBpcyBwYXkKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9iYW5rL2NvbnRyYWN0LnB5OjEzCiAgICAvLyBAYWJpbWV0aG9kKCkKICAgIGNhbGxzdWIgZGVwb3NpdAogICAgaXRvYgogICAgYnl0ZWNfMSAvLyAweDE1MWY3Yzc1CiAgICBzd2FwCiAgICBjb25jYXQKICAgIGxvZwogICAgaW50Y18wIC8vIDEKICAgIHJldHVybgoKbWFpbl9iYXJlX3JvdXRpbmdANzoKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9iYW5rL2NvbnRyYWN0LnB5OjUKICAgIC8vIGNsYXNzIEJhbmsoQVJDNENvbnRyYWN0KToKICAgIHR4biBPbkNvbXBsZXRpb24KICAgIGJueiBtYWluX2FmdGVyX2lmX2Vsc2VAOQogICAgdHhuIEFwcGxpY2F0aW9uSUQKICAgICEKICAgIGFzc2VydCAvLyBjYW4gb25seSBjYWxsIHdoZW4gY3JlYXRpbmcKICAgIGludGNfMCAvLyAxCiAgICByZXR1cm4KCgovLyBzbWFydF9jb250cmFjdHMuYmFuay5jb250cmFjdC5CYW5rLmRlcG9zaXQobWVtbzogYnl0ZXMsIHBheV90eG46IHVpbnQ2NCkgLT4gdWludDY0OgpkZXBvc2l0OgogICAgLy8gc21hcnRfY29udHJhY3RzL2JhbmsvY29udHJhY3QucHk6MTMtMTQKICAgIC8vIEBhYmltZXRob2QoKQogICAgLy8gZGVmIGRlcG9zaXQoc2VsZiwgbWVtbzogU3RyaW5nLCBwYXlfdHhuOiBndHhuLlBheW1lbnRUcmFuc2FjdGlvbikgLT4gVUludDY0OgogICAgcHJvdG8gMiAxCiAgICAvLyBzbWFydF9jb250cmFjdHMvYmFuay9jb250cmFjdC5weToxNgogICAgLy8gYXNzZXJ0IHBheV90eG4ucmVjZWl2ZXIgPT0gR2xvYmFsLmN1cnJlbnRfYXBwbGljYXRpb25fYWRkcmVzcywgIlJlY2VpdmVyIG11c3QgYmUgdGhlIGNvbnRyYWN0IGFkZHJlc3MiCiAgICBmcmFtZV9kaWcgLTEKICAgIGd0eG5zIFJlY2VpdmVyCiAgICBnbG9iYWwgQ3VycmVudEFwcGxpY2F0aW9uQWRkcmVzcwogICAgPT0KICAgIGFzc2VydCAvLyBSZWNlaXZlciBtdXN0IGJlIHRoZSBjb250cmFjdCBhZGRyZXNzCiAgICAvLyBzbWFydF9jb250cmFjdHMvYmFuay9jb250cmFjdC5weToxNwogICAgLy8gYXNzZXJ0IHBheV90eG4uYW1vdW50ID4gMCwgIkRlcG9zaXQgYW1vdW50IG11c3QgYmUgZ3JlYXRlciB0aGFuIHplcm8iCiAgICBmcmFtZV9kaWcgLTEKICAgIGd0eG5zIEFtb3VudAogICAgZHVwCiAgICBhc3NlcnQgLy8gRGVwb3NpdCBhbW91bnQgbXVzdCBiZSBncmVhdGVyIHRoYW4gemVybwogICAgLy8gc21hcnRfY29udHJhY3RzL2JhbmsvY29udHJhY3QucHk6MTkKICAgIC8vIGFtb3VudCwgZXhpc3RzID0gc2VsZi5kZXBvc2l0cy5tYXliZShwYXlfdHhuLnNlbmRlcikKICAgIGZyYW1lX2RpZyAtMQogICAgZ3R4bnMgU2VuZGVyCiAgICBkdXAKICAgIGJveF9nZXQKICAgIHN3YXAKICAgIGJ0b2kKICAgIHN3YXAKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9iYW5rL2NvbnRyYWN0LnB5OjIwCiAgICAvLyBpZiBleGlzdHM6CiAgICBieiBkZXBvc2l0X2Vsc2VfYm9keUAyCiAgICAvLyBzbWFydF9jb250cmFjdHMvYmFuay9jb250cmFjdC5weToyMQogICAgLy8gc2VsZi5kZXBvc2l0c1twYXlfdHhuLnNlbmRlcl0gPSBhbW91bnQgKyBwYXlfdHhuLmFtb3VudAogICAgZnJhbWVfZGlnIDIKICAgIGZyYW1lX2RpZyAwCiAgICArCiAgICBpdG9iCiAgICBmcmFtZV9kaWcgMQogICAgc3dhcAogICAgYm94X3B1dAoKZGVwb3NpdF9hZnRlcl9pZl9lbHNlQDM6CiAgICAvLyBzbWFydF9jb250cmFjdHMvYmFuay9jb250cmFjdC5weToyNQogICAgLy8gc2VsZi50b3RhbF9kZXBvc2l0ICs9IHBheV90eG4uYW1vdW50CiAgICBpbnRjXzEgLy8gMAogICAgYnl0ZWNfMCAvLyAidG90YWxfZGVwb3NpdCIKICAgIGFwcF9nbG9iYWxfZ2V0X2V4CiAgICBhc3NlcnQgLy8gY2hlY2sgc2VsZi50b3RhbF9kZXBvc2l0IGV4aXN0cwogICAgZnJhbWVfZGlnIDAKICAgICsKICAgIGJ5dGVjXzAgLy8gInRvdGFsX2RlcG9zaXQiCiAgICBzd2FwCiAgICBhcHBfZ2xvYmFsX3B1dAogICAgLy8gc21hcnRfY29udHJhY3RzL2JhbmsvY29udHJhY3QucHk6MjYKICAgIC8vIHJldHVybiBzZWxmLmRlcG9zaXRzW3BheV90eG4uc2VuZGVyXQogICAgZnJhbWVfZGlnIDEKICAgIGJveF9nZXQKICAgIHN3YXAKICAgIGJ0b2kKICAgIHN3YXAKICAgIGFzc2VydCAvLyBjaGVjayBzZWxmLmRlcG9zaXRzIGVudHJ5IGV4aXN0cwogICAgZnJhbWVfYnVyeSAwCiAgICByZXRzdWIKCmRlcG9zaXRfZWxzZV9ib2R5QDI6CiAgICAvLyBzbWFydF9jb250cmFjdHMvYmFuay9jb250cmFjdC5weToyMwogICAgLy8gc2VsZi5kZXBvc2l0c1twYXlfdHhuLnNlbmRlcl0gPSBwYXlfdHhuLmFtb3VudAogICAgZnJhbWVfZGlnIDAKICAgIGl0b2IKICAgIGZyYW1lX2RpZyAxCiAgICBzd2FwCiAgICBib3hfcHV0CiAgICBiIGRlcG9zaXRfYWZ0ZXJfaWZfZWxzZUAzCgoKLy8gc21hcnRfY29udHJhY3RzLmJhbmsuY29udHJhY3QuQmFuay53aXRoZHJhdyhhbW91bnQ6IHVpbnQ2NCkgLT4gdWludDY0Ogp3aXRoZHJhdzoKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9iYW5rL2NvbnRyYWN0LnB5OjI4LTI5CiAgICAvLyBAYWJpbWV0aG9kKCkKICAgIC8vIGRlZiB3aXRoZHJhdyhzZWxmLCBhbW91bnQ6IFVJbnQ2NCkgLT4gVUludDY0OgogICAgcHJvdG8gMSAxCiAgICAvLyBzbWFydF9jb250cmFjdHMvYmFuay9jb250cmFjdC5weTozMQogICAgLy8gY3VycmVudCwgZXhpc3RzID0gc2VsZi5kZXBvc2l0cy5tYXliZShUeG4uc2VuZGVyKQogICAgdHhuIFNlbmRlcgogICAgYm94X2dldAogICAgc3dhcAogICAgYnRvaQogICAgLy8gc21hcnRfY29udHJhY3RzL2JhbmsvY29udHJhY3QucHk6MzIKICAgIC8vIGFzc2VydCBleGlzdHMsICJObyBkZXBvc2l0cyBmb3VuZCBmb3IgdGhpcyBhY2NvdW50IgogICAgc3dhcAogICAgYXNzZXJ0IC8vIE5vIGRlcG9zaXRzIGZvdW5kIGZvciB0aGlzIGFjY291bnQKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9iYW5rL2NvbnRyYWN0LnB5OjMzCiAgICAvLyBhc3NlcnQgYW1vdW50ID4gMCwgIldpdGhkcmF3YWwgYW1vdW50IG11c3QgYmUgZ3JlYXRlciB0aGFuIHplcm8iCiAgICBmcmFtZV9kaWcgLTEKICAgIGFzc2VydCAvLyBXaXRoZHJhd2FsIGFtb3VudCBtdXN0IGJlIGdyZWF0ZXIgdGhhbiB6ZXJvCiAgICAvLyBzbWFydF9jb250cmFjdHMvYmFuay9jb250cmFjdC5weTozNAogICAgLy8gYXNzZXJ0IGFtb3VudCA8PSBjdXJyZW50LCAiV2l0aGRyYXdhbCBhbW91bnQgZXhjZWVkcyBiYWxhbmNlIgogICAgZnJhbWVfZGlnIC0xCiAgICBkaWcgMQogICAgPD0KICAgIGFzc2VydCAvLyBXaXRoZHJhd2FsIGFtb3VudCBleGNlZWRzIGJhbGFuY2UKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9iYW5rL2NvbnRyYWN0LnB5OjM2CiAgICAvLyBpdHhuLlBheW1lbnQocmVjZWl2ZXI9VHhuLnNlbmRlciwgYW1vdW50PWFtb3VudCwgZmVlPTApLnN1Ym1pdCgpCiAgICBpdHhuX2JlZ2luCiAgICB0eG4gU2VuZGVyCiAgICBmcmFtZV9kaWcgLTEKICAgIGl0eG5fZmllbGQgQW1vdW50CiAgICBpdHhuX2ZpZWxkIFJlY2VpdmVyCiAgICBpbnRjXzAgLy8gcGF5CiAgICBpdHhuX2ZpZWxkIFR5cGVFbnVtCiAgICBpbnRjXzEgLy8gMAogICAgaXR4bl9maWVsZCBGZWUKICAgIGl0eG5fc3VibWl0CiAgICAvLyBzbWFydF9jb250cmFjdHMvYmFuay9jb250cmFjdC5weTozOAogICAgLy8gcmVtYWluaW5nID0gY3VycmVudCAtIGFtb3VudAogICAgZnJhbWVfZGlnIC0xCiAgICAtCiAgICBkdXAKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9iYW5rL2NvbnRyYWN0LnB5OjM5CiAgICAvLyBpZiByZW1haW5pbmcgPT0gVUludDY0KDApOgogICAgYm56IHdpdGhkcmF3X2Vsc2VfYm9keUAzCiAgICAvLyBzbWFydF9jb250cmFjdHMvYmFuay9jb250cmFjdC5weTo0MAogICAgLy8gZGVsIHNlbGYuZGVwb3NpdHNbVHhuLnNlbmRlcl0KICAgIHR4biBTZW5kZXIKICAgIGJveF9kZWwKICAgIHBvcAoKd2l0aGRyYXdfYWZ0ZXJfaWZfZWxzZUA0OgogICAgLy8gc21hcnRfY29udHJhY3RzL2JhbmsvY29udHJhY3QucHk6NDQKICAgIC8vIHJldHVybiByZW1haW5pbmcKICAgIGZyYW1lX2RpZyAwCiAgICBzd2FwCiAgICByZXRzdWIKCndpdGhkcmF3X2Vsc2VfYm9keUAzOgogICAgLy8gc21hcnRfY29udHJhY3RzL2JhbmsvY29udHJhY3QucHk6NDIKICAgIC8vIHNlbGYuZGVwb3NpdHNbVHhuLnNlbmRlcl0gPSByZW1haW5pbmcKICAgIHR4biBTZW5kZXIKICAgIGZyYW1lX2RpZyAwCiAgICBpdG9iCiAgICBib3hfcHV0CiAgICBiIHdpdGhkcmF3X2FmdGVyX2lmX2Vsc2VANAo=", "clear": "I3ByYWdtYSB2ZXJzaW9uIDEwCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBhbGdvcHkuYXJjNC5BUkM0Q29udHJhY3QuY2xlYXJfc3RhdGVfcHJvZ3JhbSgpIC0+IHVpbnQ2NDoKbWFpbjoKICAgIHB1c2hpbnQgMSAvLyAxCiAgICByZXR1cm4K"}, "sourceInfo": {"approval": {"pcOffsetMethod": "none", "sourceInfo": [{"pc": [143], "errorMessage": "Deposit amount must be greater than zero"}, {"pc": [205], "errorMessage": "No deposits found for this account"}, {"pc": [65, 86], "errorMessage": "OnCompletion is not NoOp"}, {"pc": [137], "errorMessage": "Receiver must be the contract address"}, {"pc": [214], "errorMessage": "Withdrawal amount exceeds balance"}, {"pc": [208], "errorMessage": "Withdrawal amount must be greater than zero"}, {"pc": [124], "errorMessage": "can only call when creating"}, {"pc": [68, 89], "errorMessage": "can only call when not creating"}, {"pc": [182], "errorMessage": "check self.deposits entry exists"}, {"pc": [169], "errorMessage": "check self.total_deposit exists"}, {"pc": [105], "errorMessage": "transaction type is pay"}]}, "clear": {"pcOffsetMethod": "none", "sourceInfo": []}}, "templateVariables": {}}"""
+_APP_SPEC_JSON = r"""{"arcs": [22, 28], "bareActions": {"call": [], "create": ["NoOp"]}, "methods": [], "name": "CommitFi", "state": {"keys": {"box": {}, "global": {"creator": {"key": "Y3JlYXRvcg==", "keyType": "AVMString", "valueType": "address"}, "stake_amount": {"key": "c3Rha2VfYW1vdW50", "keyType": "AVMString", "valueType": "AVMUint64"}, "deadline": {"key": "ZGVhZGxpbmU=", "keyType": "AVMString", "valueType": "AVMUint64"}, "max_participants": {"key": "bWF4X3BhcnRpY2lwYW50cw==", "keyType": "AVMString", "valueType": "AVMUint64"}, "current_participants": {"key": "Y3VycmVudF9wYXJ0aWNpcGFudHM=", "keyType": "AVMString", "valueType": "AVMUint64"}, "total_pooled_stake": {"key": "dG90YWxfcG9vbGVkX3N0YWtl", "keyType": "AVMString", "valueType": "AVMUint64"}, "challenge_status": {"key": "Y2hhbGxlbmdlX3N0YXR1cw==", "keyType": "AVMString", "valueType": "AVMUint64"}}, "local": {}}, "maps": {"box": {"participant_data": {"keyType": "address", "valueType": "uint64", "prefix": ""}}, "global": {}, "local": {}}, "schema": {"global": {"bytes": 1, "ints": 6}, "local": {"bytes": 0, "ints": 0}}}, "structs": {}, "byteCode": {"approval": "CiABADEYQAB/gAdjcmVhdG9yMglngAxzdGFrZV9hbW91bnQiZ4AIZGVhZGxpbmUiZ4AQbWF4X3BhcnRpY2lwYW50c4EKZ4AUY3VycmVudF9wYXJ0aWNpcGFudHMiZ4ASdG90YWxfcG9vbGVkX3N0YWtlImeAEGNoYWxsZW5nZV9zdGF0dXMiZzEbQAAMMRlAAAcxGBREgQFDIkM=", "clear": "CoEBQw=="}, "compilerInfo": {"compiler": "puya", "compilerVersion": {"major": 4, "minor": 7, "patch": 0}}, "desc": "\n    Commit-Fi: Accountability Staking dApp for Study Circles\n    \n    Users form study circles, stake ALGO, set goals and deadlines.\n    Winners get refunds + rewards, losers lose their stake.\n    ", "events": [], "networks": {}, "source": {"approval": "I3ByYWdtYSB2ZXJzaW9uIDEwCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBzbWFydF9jb250cmFjdHMuY29tbWl0X2ZpLmNvbnRyYWN0LkNvbW1pdEZpLl9fYWxnb3B5X2VudHJ5cG9pbnRfd2l0aF9pbml0KCkgLT4gdWludDY0OgptYWluOgogICAgaW50Y2Jsb2NrIDAKICAgIHR4biBBcHBsaWNhdGlvbklECiAgICBibnogbWFpbl9hZnRlcl9pZl9lbHNlQDIKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jb21taXRfZmkvY29udHJhY3QucHk6MjYtMjcKICAgIC8vICMgU2V0IGRlZmF1bHQgdmFsdWVzIGZvciBnbG9iYWwgc3RhdGUKICAgIC8vIHNlbGYuY3JlYXRvciA9IEdsb2JhbC5jcmVhdG9yX2FkZHJlc3MgICMgRGVwbG95ZXIgYmVjb21lcyBjcmVhdG9yCiAgICBwdXNoYnl0ZXMgImNyZWF0b3IiCiAgICBnbG9iYWwgQ3JlYXRvckFkZHJlc3MKICAgIGFwcF9nbG9iYWxfcHV0CiAgICAvLyBzbWFydF9jb250cmFjdHMvY29tbWl0X2ZpL2NvbnRyYWN0LnB5OjI4CiAgICAvLyBzZWxmLnN0YWtlX2Ftb3VudCA9IFVJbnQ2NCgwKSAgIyBUbyBiZSBzZXQgYnkgY3JlYXRvcgogICAgcHVzaGJ5dGVzICJzdGFrZV9hbW91bnQiCiAgICBpbnRjXzAgLy8gMAogICAgYXBwX2dsb2JhbF9wdXQKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jb21taXRfZmkvY29udHJhY3QucHk6MjkKICAgIC8vIHNlbGYuZGVhZGxpbmUgPSBVSW50NjQoMCkgICMgVG8gYmUgc2V0IGJ5IGNyZWF0b3IKICAgIHB1c2hieXRlcyAiZGVhZGxpbmUiCiAgICBpbnRjXzAgLy8gMAogICAgYXBwX2dsb2JhbF9wdXQKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jb21taXRfZmkvY29udHJhY3QucHk6MzAKICAgIC8vIHNlbGYubWF4X3BhcnRpY2lwYW50cyA9IFVJbnQ2NCgxMCkgICMgRGVmYXVsdCBtYXggcGFydGljaXBhbnRzCiAgICBwdXNoYnl0ZXMgIm1heF9wYXJ0aWNpcGFudHMiCiAgICBwdXNoaW50IDEwIC8vIDEwCiAgICBhcHBfZ2xvYmFsX3B1dAogICAgLy8gc21hcnRfY29udHJhY3RzL2NvbW1pdF9maS9jb250cmFjdC5weTozMQogICAgLy8gc2VsZi5jdXJyZW50X3BhcnRpY2lwYW50cyA9IFVJbnQ2NCgwKQogICAgcHVzaGJ5dGVzICJjdXJyZW50X3BhcnRpY2lwYW50cyIKICAgIGludGNfMCAvLyAwCiAgICBhcHBfZ2xvYmFsX3B1dAogICAgLy8gc21hcnRfY29udHJhY3RzL2NvbW1pdF9maS9jb250cmFjdC5weTozMgogICAgLy8gc2VsZi50b3RhbF9wb29sZWRfc3Rha2UgPSBVSW50NjQoMCkKICAgIHB1c2hieXRlcyAidG90YWxfcG9vbGVkX3N0YWtlIgogICAgaW50Y18wIC8vIDAKICAgIGFwcF9nbG9iYWxfcHV0CiAgICAvLyBzbWFydF9jb250cmFjdHMvY29tbWl0X2ZpL2NvbnRyYWN0LnB5OjMzCiAgICAvLyBzZWxmLmNoYWxsZW5nZV9zdGF0dXMgPSBVSW50NjQoMCkgICMgU3RhcnQgaW4gU2V0dXAgbW9kZQogICAgcHVzaGJ5dGVzICJjaGFsbGVuZ2Vfc3RhdHVzIgogICAgaW50Y18wIC8vIDAKICAgIGFwcF9nbG9iYWxfcHV0CgptYWluX2FmdGVyX2lmX2Vsc2VAMjoKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jb21taXRfZmkvY29udHJhY3QucHk6NQogICAgLy8gY2xhc3MgQ29tbWl0RmkoQVJDNENvbnRyYWN0KToKICAgIHR4biBOdW1BcHBBcmdzCiAgICBibnogbWFpbl9hZnRlcl9pZl9lbHNlQDYKICAgIHR4biBPbkNvbXBsZXRpb24KICAgIGJueiBtYWluX2FmdGVyX2lmX2Vsc2VANgogICAgdHhuIEFwcGxpY2F0aW9uSUQKICAgICEKICAgIGFzc2VydCAvLyBjYW4gb25seSBjYWxsIHdoZW4gY3JlYXRpbmcKICAgIHB1c2hpbnQgMSAvLyAxCiAgICByZXR1cm4KCm1haW5fYWZ0ZXJfaWZfZWxzZUA2OgogICAgLy8gc21hcnRfY29udHJhY3RzL2NvbW1pdF9maS9jb250cmFjdC5weTo1CiAgICAvLyBjbGFzcyBDb21taXRGaShBUkM0Q29udHJhY3QpOgogICAgaW50Y18wIC8vIDAKICAgIHJldHVybgo=", "clear": "I3ByYWdtYSB2ZXJzaW9uIDEwCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBhbGdvcHkuYXJjNC5BUkM0Q29udHJhY3QuY2xlYXJfc3RhdGVfcHJvZ3JhbSgpIC0+IHVpbnQ2NDoKbWFpbjoKICAgIHB1c2hpbnQgMSAvLyAxCiAgICByZXR1cm4K"}, "sourceInfo": {"approval": {"pcOffsetMethod": "none", "sourceInfo": [{"pc": [149], "errorMessage": "can only call when creating"}]}, "clear": {"pcOffsetMethod": "none", "sourceInfo": []}}, "templateVariables": {}}"""
 APP_SPEC = algokit_utils.Arc56Contract.from_json(_APP_SPEC_JSON)
 
 def _parse_abi_args(args: object | None = None) -> list[object] | None:
@@ -64,55 +64,9 @@ def _init_dataclass(cls: type, data: dict) -> object:
             field_values[field.name] = field_value
     return cls(**field_values)
 
-@dataclasses.dataclass(frozen=True, kw_only=True)
-class DepositArgs:
-    """Dataclass for deposit arguments"""
-    memo: str
-    pay_txn: algokit_utils.AppMethodCallTransactionArgument
-
-    @property
-    def abi_method_signature(self) -> str:
-        return "deposit(string,pay)uint64"
-
-@dataclasses.dataclass(frozen=True, kw_only=True)
-class WithdrawArgs:
-    """Dataclass for withdraw arguments"""
-    amount: int
-
-    @property
-    def abi_method_signature(self) -> str:
-        return "withdraw(uint64)uint64"
-
-
-class BankParams:
+class CommitFiParams:
     def __init__(self, app_client: algokit_utils.AppClient):
         self.app_client = app_client
-
-    def deposit(
-        self,
-        args: tuple[str, algokit_utils.AppMethodCallTransactionArgument] | DepositArgs,
-        params: algokit_utils.CommonAppCallParams | None = None
-    ) -> algokit_utils.AppCallMethodCallParams:
-        method_args = _parse_abi_args(args)
-        params = params or algokit_utils.CommonAppCallParams()
-        return self.app_client.params.call(algokit_utils.AppClientMethodCallParams(**{
-            **dataclasses.asdict(params),
-            "method": "deposit(string,pay)uint64",
-            "args": method_args,
-        }))
-
-    def withdraw(
-        self,
-        args: tuple[int] | WithdrawArgs,
-        params: algokit_utils.CommonAppCallParams | None = None
-    ) -> algokit_utils.AppCallMethodCallParams:
-        method_args = _parse_abi_args(args)
-        params = params or algokit_utils.CommonAppCallParams()
-        return self.app_client.params.call(algokit_utils.AppClientMethodCallParams(**{
-            **dataclasses.asdict(params),
-            "method": "withdraw(uint64)uint64",
-            "args": method_args,
-        }))
 
     def clear_state(
         self,
@@ -125,35 +79,9 @@ class BankParams:
         )
 
 
-class BankCreateTransactionParams:
+class CommitFiCreateTransactionParams:
     def __init__(self, app_client: algokit_utils.AppClient):
         self.app_client = app_client
-
-    def deposit(
-        self,
-        args: tuple[str, algokit_utils.AppMethodCallTransactionArgument] | DepositArgs,
-        params: algokit_utils.CommonAppCallParams | None = None
-    ) -> algokit_utils.BuiltTransactions:
-        method_args = _parse_abi_args(args)
-        params = params or algokit_utils.CommonAppCallParams()
-        return self.app_client.create_transaction.call(algokit_utils.AppClientMethodCallParams(**{
-            **dataclasses.asdict(params),
-            "method": "deposit(string,pay)uint64",
-            "args": method_args,
-        }))
-
-    def withdraw(
-        self,
-        args: tuple[int] | WithdrawArgs,
-        params: algokit_utils.CommonAppCallParams | None = None
-    ) -> algokit_utils.BuiltTransactions:
-        method_args = _parse_abi_args(args)
-        params = params or algokit_utils.CommonAppCallParams()
-        return self.app_client.create_transaction.call(algokit_utils.AppClientMethodCallParams(**{
-            **dataclasses.asdict(params),
-            "method": "withdraw(uint64)uint64",
-            "args": method_args,
-        }))
 
     def clear_state(
         self,
@@ -166,41 +94,9 @@ class BankCreateTransactionParams:
         )
 
 
-class BankSend:
+class CommitFiSend:
     def __init__(self, app_client: algokit_utils.AppClient):
         self.app_client = app_client
-
-    def deposit(
-        self,
-        args: tuple[str, algokit_utils.AppMethodCallTransactionArgument] | DepositArgs,
-        params: algokit_utils.CommonAppCallParams | None = None,
-        send_params: algokit_utils.SendParams | None = None
-    ) -> algokit_utils.SendAppTransactionResult[int]:
-        method_args = _parse_abi_args(args)
-        params = params or algokit_utils.CommonAppCallParams()
-        response = self.app_client.send.call(algokit_utils.AppClientMethodCallParams(**{
-            **dataclasses.asdict(params),
-            "method": "deposit(string,pay)uint64",
-            "args": method_args,
-        }), send_params=send_params)
-        parsed_response = response
-        return typing.cast(algokit_utils.SendAppTransactionResult[int], parsed_response)
-
-    def withdraw(
-        self,
-        args: tuple[int] | WithdrawArgs,
-        params: algokit_utils.CommonAppCallParams | None = None,
-        send_params: algokit_utils.SendParams | None = None
-    ) -> algokit_utils.SendAppTransactionResult[int]:
-        method_args = _parse_abi_args(args)
-        params = params or algokit_utils.CommonAppCallParams()
-        response = self.app_client.send.call(algokit_utils.AppClientMethodCallParams(**{
-            **dataclasses.asdict(params),
-            "method": "withdraw(uint64)uint64",
-            "args": method_args,
-        }), send_params=send_params)
-        parsed_response = response
-        return typing.cast(algokit_utils.SendAppTransactionResult[int], parsed_response)
 
     def clear_state(
         self,
@@ -215,10 +111,16 @@ class BankSend:
 
 class GlobalStateValue(typing.TypedDict):
     """Shape of global_state state key values"""
-    total_deposit: int
+    creator: str
+    stake_amount: int
+    deadline: int
+    max_participants: int
+    current_participants: int
+    total_pooled_stake: int
+    challenge_status: int
 
-class BankState:
-    """Methods to access state for the current Bank app"""
+class CommitFiState:
+    """Methods to access state for the current CommitFi app"""
 
     def __init__(self, app_client: algokit_utils.AppClient):
         self.app_client = app_client
@@ -261,9 +163,57 @@ class _GlobalState:
         return typing.cast(GlobalStateValue, converted)
 
     @property
-    def total_deposit(self) -> int:
-        """Get the current value of the total_deposit key in global_state state"""
-        value = self.app_client.state.global_state.get_value("total_deposit")
+    def creator(self) -> str:
+        """Get the current value of the creator key in global_state state"""
+        value = self.app_client.state.global_state.get_value("creator")
+        if isinstance(value, dict) and "address" in self._struct_classes:
+            return _init_dataclass(self._struct_classes["address"], value)  # type: ignore
+        return typing.cast(str, value)
+
+    @property
+    def stake_amount(self) -> int:
+        """Get the current value of the stake_amount key in global_state state"""
+        value = self.app_client.state.global_state.get_value("stake_amount")
+        if isinstance(value, dict) and "AVMUint64" in self._struct_classes:
+            return _init_dataclass(self._struct_classes["AVMUint64"], value)  # type: ignore
+        return typing.cast(int, value)
+
+    @property
+    def deadline(self) -> int:
+        """Get the current value of the deadline key in global_state state"""
+        value = self.app_client.state.global_state.get_value("deadline")
+        if isinstance(value, dict) and "AVMUint64" in self._struct_classes:
+            return _init_dataclass(self._struct_classes["AVMUint64"], value)  # type: ignore
+        return typing.cast(int, value)
+
+    @property
+    def max_participants(self) -> int:
+        """Get the current value of the max_participants key in global_state state"""
+        value = self.app_client.state.global_state.get_value("max_participants")
+        if isinstance(value, dict) and "AVMUint64" in self._struct_classes:
+            return _init_dataclass(self._struct_classes["AVMUint64"], value)  # type: ignore
+        return typing.cast(int, value)
+
+    @property
+    def current_participants(self) -> int:
+        """Get the current value of the current_participants key in global_state state"""
+        value = self.app_client.state.global_state.get_value("current_participants")
+        if isinstance(value, dict) and "AVMUint64" in self._struct_classes:
+            return _init_dataclass(self._struct_classes["AVMUint64"], value)  # type: ignore
+        return typing.cast(int, value)
+
+    @property
+    def total_pooled_stake(self) -> int:
+        """Get the current value of the total_pooled_stake key in global_state state"""
+        value = self.app_client.state.global_state.get_value("total_pooled_stake")
+        if isinstance(value, dict) and "AVMUint64" in self._struct_classes:
+            return _init_dataclass(self._struct_classes["AVMUint64"], value)  # type: ignore
+        return typing.cast(int, value)
+
+    @property
+    def challenge_status(self) -> int:
+        """Get the current value of the challenge_status key in global_state state"""
+        value = self.app_client.state.global_state.get_value("challenge_status")
         if isinstance(value, dict) and "AVMUint64" in self._struct_classes:
             return _init_dataclass(self._struct_classes["AVMUint64"], value)  # type: ignore
         return typing.cast(int, value)
@@ -292,11 +242,11 @@ class _BoxState:
         return converted
 
     @property
-    def deposits(self) -> "_MapState[str, int]":
-        """Get values from the deposits map in box state"""
+    def participant_data(self) -> "_MapState[str, int]":
+        """Get values from the participant_data map in box state"""
         return _MapState(
             self.app_client.state.box,
-            "deposits",
+            "participant_data",
             None
         )
 
@@ -335,8 +285,8 @@ class _MapState(typing.Generic[_KeyType, _ValueType]):
         return typing.cast(_ValueType | None, value)
 
 
-class BankClient:
-    """Client for interacting with Bank smart contract"""
+class CommitFiClient:
+    """Client for interacting with CommitFi smart contract"""
 
     @typing.overload
     def __init__(self, app_client: algokit_utils.AppClient) -> None: ...
@@ -384,10 +334,10 @@ class BankClient:
         else:
             raise ValueError("Either app_client or algorand and app_id must be provided")
     
-        self.params = BankParams(self.app_client)
-        self.create_transaction = BankCreateTransactionParams(self.app_client)
-        self.send = BankSend(self.app_client)
-        self.state = BankState(self.app_client)
+        self.params = CommitFiParams(self.app_client)
+        self.create_transaction = CommitFiCreateTransactionParams(self.app_client)
+        self.send = CommitFiSend(self.app_client)
+        self.state = CommitFiState(self.app_client)
 
     @staticmethod
     def from_creator_and_name(
@@ -400,8 +350,8 @@ class BankClient:
         clear_source_map: SourceMap | None = None,
         ignore_cache: bool | None = None,
         app_lookup_cache: algokit_utils.ApplicationLookup | None = None,
-    ) -> "BankClient":
-        return BankClient(
+    ) -> "CommitFiClient":
+        return CommitFiClient(
             algokit_utils.AppClient.from_creator_and_name(
                 creator_address=creator_address,
                 app_name=app_name,
@@ -424,8 +374,8 @@ class BankClient:
         default_signer: TransactionSigner | None = None,
         approval_source_map: SourceMap | None = None,
         clear_source_map: SourceMap | None = None,
-    ) -> "BankClient":
-        return BankClient(
+    ) -> "CommitFiClient":
+        return CommitFiClient(
             algokit_utils.AppClient.from_network(
                 app_spec=APP_SPEC,
                 algorand=algorand,
@@ -464,8 +414,8 @@ class BankClient:
         default_signer: TransactionSigner | None = None,
         approval_source_map: SourceMap | None = None,
         clear_source_map: SourceMap | None = None,
-    ) -> "BankClient":
-        return BankClient(
+    ) -> "CommitFiClient":
+        return CommitFiClient(
             self.app_client.clone(
                 app_name=app_name,
                 default_sender=default_sender,
@@ -475,33 +425,14 @@ class BankClient:
             )
         )
 
-    def new_group(self) -> "BankComposer":
-        return BankComposer(self)
-
-    @typing.overload
-    def decode_return_value(
-        self,
-        method: typing.Literal["deposit(string,pay)uint64"],
-        return_value: algokit_utils.ABIReturn | None
-    ) -> int | None: ...
-    @typing.overload
-    def decode_return_value(
-        self,
-        method: typing.Literal["withdraw(uint64)uint64"],
-        return_value: algokit_utils.ABIReturn | None
-    ) -> int | None: ...
-    @typing.overload
-    def decode_return_value(
-        self,
-        method: str,
-        return_value: algokit_utils.ABIReturn | None
-    ) -> algokit_utils.ABIValue | algokit_utils.ABIStruct | None: ...
+    def new_group(self) -> "CommitFiComposer":
+        return CommitFiComposer(self)
 
     def decode_return_value(
         self,
         method: str,
         return_value: algokit_utils.ABIReturn | None
-    ) -> algokit_utils.ABIValue | algokit_utils.ABIStruct | None | int:
+    ) -> algokit_utils.ABIValue | algokit_utils.ABIStruct | None:
         """Decode ABI return value for the given method."""
         if return_value is None:
             return None
@@ -521,15 +452,15 @@ class BankClient:
 
 
 @dataclasses.dataclass(frozen=True)
-class BankBareCallCreateParams(algokit_utils.AppClientBareCallCreateParams):
-    """Parameters for creating Bank contract with bare calls"""
+class CommitFiBareCallCreateParams(algokit_utils.AppClientBareCallCreateParams):
+    """Parameters for creating CommitFi contract with bare calls"""
     on_complete: typing.Literal[OnComplete.NoOpOC] | None = None
 
     def to_algokit_utils_params(self) -> algokit_utils.AppClientBareCallCreateParams:
         return algokit_utils.AppClientBareCallCreateParams(**self.__dict__)
 
-class BankFactory(algokit_utils.TypedAppFactoryProtocol[BankBareCallCreateParams, None, None]):
-    """Factory for deploying and managing BankClient smart contracts"""
+class CommitFiFactory(algokit_utils.TypedAppFactoryProtocol[CommitFiBareCallCreateParams, None, None]):
+    """Factory for deploying and managing CommitFiClient smart contracts"""
 
     def __init__(
         self,
@@ -552,9 +483,9 @@ class BankFactory(algokit_utils.TypedAppFactoryProtocol[BankBareCallCreateParams
                 compilation_params=compilation_params,
             )
         )
-        self.params = BankFactoryParams(self.app_factory)
-        self.create_transaction = BankFactoryCreateTransaction(self.app_factory)
-        self.send = BankFactorySend(self.app_factory)
+        self.params = CommitFiFactoryParams(self.app_factory)
+        self.create_transaction = CommitFiFactoryCreateTransaction(self.app_factory)
+        self.send = CommitFiFactorySend(self.app_factory)
 
     @property
     def app_name(self) -> str:
@@ -573,7 +504,7 @@ class BankFactory(algokit_utils.TypedAppFactoryProtocol[BankBareCallCreateParams
         *,
         on_update: algokit_utils.OnUpdate | None = None,
         on_schema_break: algokit_utils.OnSchemaBreak | None = None,
-        create_params: BankBareCallCreateParams | None = None,
+        create_params: CommitFiBareCallCreateParams | None = None,
         update_params: None = None,
         delete_params: None = None,
         existing_deployments: algokit_utils.ApplicationLookup | None = None,
@@ -581,7 +512,7 @@ class BankFactory(algokit_utils.TypedAppFactoryProtocol[BankBareCallCreateParams
         app_name: str | None = None,
         compilation_params: algokit_utils.AppClientCompilationParams | None = None,
         send_params: algokit_utils.SendParams | None = None,
-    ) -> tuple[BankClient, algokit_utils.AppFactoryDeployResult]:
+    ) -> tuple[CommitFiClient, algokit_utils.AppFactoryDeployResult]:
         """Deploy the application"""
         deploy_response = self.app_factory.deploy(
             on_update=on_update,
@@ -596,7 +527,7 @@ class BankFactory(algokit_utils.TypedAppFactoryProtocol[BankBareCallCreateParams
             send_params=send_params,
         )
 
-        return BankClient(deploy_response[0]), deploy_response[1]
+        return CommitFiClient(deploy_response[0]), deploy_response[1]
 
     def get_app_client_by_creator_and_name(
         self,
@@ -608,9 +539,9 @@ class BankFactory(algokit_utils.TypedAppFactoryProtocol[BankBareCallCreateParams
         app_lookup_cache: algokit_utils.ApplicationLookup | None = None,
         approval_source_map: SourceMap | None = None,
         clear_source_map: SourceMap | None = None,
-    ) -> BankClient:
+    ) -> CommitFiClient:
         """Get an app client by creator address and name"""
-        return BankClient(
+        return CommitFiClient(
             self.app_factory.get_app_client_by_creator_and_name(
                 creator_address,
                 app_name,
@@ -631,9 +562,9 @@ class BankFactory(algokit_utils.TypedAppFactoryProtocol[BankBareCallCreateParams
         default_signer: TransactionSigner | None = None,
         approval_source_map: SourceMap | None = None,
         clear_source_map: SourceMap | None = None,
-    ) -> BankClient:
+    ) -> CommitFiClient:
         """Get an app client by app ID"""
-        return BankClient(
+        return CommitFiClient(
             self.app_factory.get_app_client_by_id(
                 app_id,
                 app_name,
@@ -645,17 +576,17 @@ class BankFactory(algokit_utils.TypedAppFactoryProtocol[BankBareCallCreateParams
         )
 
 
-class BankFactoryParams:
-    """Parameters for creating transactions for Bank contract"""
+class CommitFiFactoryParams:
+    """Parameters for creating transactions for CommitFi contract"""
 
     def __init__(self, app_factory: algokit_utils.AppFactory):
         self.app_factory = app_factory
-        self.create = BankFactoryCreateParams(app_factory)
-        self.update = BankFactoryUpdateParams(app_factory)
-        self.delete = BankFactoryDeleteParams(app_factory)
+        self.create = CommitFiFactoryCreateParams(app_factory)
+        self.update = CommitFiFactoryUpdateParams(app_factory)
+        self.delete = CommitFiFactoryDeleteParams(app_factory)
 
-class BankFactoryCreateParams:
-    """Parameters for 'create' operations of Bank contract"""
+class CommitFiFactoryCreateParams:
+    """Parameters for 'create' operations of CommitFi contract"""
 
     def __init__(self, app_factory: algokit_utils.AppFactory):
         self.app_factory = app_factory
@@ -672,48 +603,8 @@ class BankFactoryCreateParams:
             algokit_utils.AppFactoryCreateParams(**dataclasses.asdict(params)),
             compilation_params=compilation_params)
 
-    def deposit(
-        self,
-        args: tuple[str, algokit_utils.AppMethodCallTransactionArgument] | DepositArgs,
-        *,
-        params: algokit_utils.CommonAppCallCreateParams | None = None,
-        compilation_params: algokit_utils.AppClientCompilationParams | None = None
-    ) -> algokit_utils.AppCreateMethodCallParams:
-        """Creates a new instance using the deposit(string,pay)uint64 ABI method"""
-        params = params or algokit_utils.CommonAppCallCreateParams()
-        return self.app_factory.params.create(
-            algokit_utils.AppFactoryCreateMethodCallParams(
-                **{
-                **dataclasses.asdict(params),
-                "method": "deposit(string,pay)uint64",
-                "args": _parse_abi_args(args),
-                }
-            ),
-            compilation_params=compilation_params
-        )
-
-    def withdraw(
-        self,
-        args: tuple[int] | WithdrawArgs,
-        *,
-        params: algokit_utils.CommonAppCallCreateParams | None = None,
-        compilation_params: algokit_utils.AppClientCompilationParams | None = None
-    ) -> algokit_utils.AppCreateMethodCallParams:
-        """Creates a new instance using the withdraw(uint64)uint64 ABI method"""
-        params = params or algokit_utils.CommonAppCallCreateParams()
-        return self.app_factory.params.create(
-            algokit_utils.AppFactoryCreateMethodCallParams(
-                **{
-                **dataclasses.asdict(params),
-                "method": "withdraw(uint64)uint64",
-                "args": _parse_abi_args(args),
-                }
-            ),
-            compilation_params=compilation_params
-        )
-
-class BankFactoryUpdateParams:
-    """Parameters for 'update' operations of Bank contract"""
+class CommitFiFactoryUpdateParams:
+    """Parameters for 'update' operations of CommitFi contract"""
 
     def __init__(self, app_factory: algokit_utils.AppFactory):
         self.app_factory = app_factory
@@ -730,8 +621,8 @@ class BankFactoryUpdateParams:
             algokit_utils.AppClientBareCallParams(**dataclasses.asdict(params)),
             )
 
-class BankFactoryDeleteParams:
-    """Parameters for 'delete' operations of Bank contract"""
+class CommitFiFactoryDeleteParams:
+    """Parameters for 'delete' operations of CommitFi contract"""
 
     def __init__(self, app_factory: algokit_utils.AppFactory):
         self.app_factory = app_factory
@@ -749,16 +640,16 @@ class BankFactoryDeleteParams:
             )
 
 
-class BankFactoryCreateTransaction:
-    """Create transactions for Bank contract"""
+class CommitFiFactoryCreateTransaction:
+    """Create transactions for CommitFi contract"""
 
     def __init__(self, app_factory: algokit_utils.AppFactory):
         self.app_factory = app_factory
-        self.create = BankFactoryCreateTransactionCreate(app_factory)
+        self.create = CommitFiFactoryCreateTransactionCreate(app_factory)
 
 
-class BankFactoryCreateTransactionCreate:
-    """Create new instances of Bank contract"""
+class CommitFiFactoryCreateTransactionCreate:
+    """Create new instances of CommitFi contract"""
 
     def __init__(self, app_factory: algokit_utils.AppFactory):
         self.app_factory = app_factory
@@ -774,16 +665,16 @@ class BankFactoryCreateTransactionCreate:
         )
 
 
-class BankFactorySend:
-    """Send calls to Bank contract"""
+class CommitFiFactorySend:
+    """Send calls to CommitFi contract"""
 
     def __init__(self, app_factory: algokit_utils.AppFactory):
         self.app_factory = app_factory
-        self.create = BankFactorySendCreate(app_factory)
+        self.create = CommitFiFactorySendCreate(app_factory)
 
 
-class BankFactorySendCreate:
-    """Send create calls to Bank contract"""
+class CommitFiFactorySendCreate:
+    """Send create calls to CommitFi contract"""
 
     def __init__(self, app_factory: algokit_utils.AppFactory):
         self.app_factory = app_factory
@@ -794,7 +685,7 @@ class BankFactorySendCreate:
         params: algokit_utils.CommonAppCallCreateParams | None = None,
         send_params: algokit_utils.SendParams | None = None,
         compilation_params: algokit_utils.AppClientCompilationParams | None = None,
-    ) -> tuple[BankClient, algokit_utils.SendAppCreateTransactionResult]:
+    ) -> tuple[CommitFiClient, algokit_utils.SendAppCreateTransactionResult]:
         """Creates a new instance using a bare call"""
         params = params or algokit_utils.CommonAppCallCreateParams()
         result = self.app_factory.send.bare.create(
@@ -802,59 +693,23 @@ class BankFactorySendCreate:
             send_params=send_params,
             compilation_params=compilation_params
         )
-        return BankClient(result[0]), result[1]
+        return CommitFiClient(result[0]), result[1]
 
 
-class BankComposer:
-    """Composer for creating transaction groups for Bank contract calls"""
+class CommitFiComposer:
+    """Composer for creating transaction groups for CommitFi contract calls"""
 
-    def __init__(self, client: "BankClient"):
+    def __init__(self, client: "CommitFiClient"):
         self.client = client
         self._composer = client.algorand.new_group()
         self._result_mappers: list[typing.Callable[[algokit_utils.ABIReturn | None], object] | None] = []
-
-    def deposit(
-        self,
-        args: tuple[str, algokit_utils.AppMethodCallTransactionArgument] | DepositArgs,
-        params: algokit_utils.CommonAppCallParams | None = None
-    ) -> "BankComposer":
-        self._composer.add_app_call_method_call(
-            self.client.params.deposit(
-                args=args,
-                params=params,
-            )
-        )
-        self._result_mappers.append(
-            lambda v: self.client.decode_return_value(
-                "deposit(string,pay)uint64", v
-            )
-        )
-        return self
-
-    def withdraw(
-        self,
-        args: tuple[int] | WithdrawArgs,
-        params: algokit_utils.CommonAppCallParams | None = None
-    ) -> "BankComposer":
-        self._composer.add_app_call_method_call(
-            self.client.params.withdraw(
-                args=args,
-                params=params,
-            )
-        )
-        self._result_mappers.append(
-            lambda v: self.client.decode_return_value(
-                "withdraw(uint64)uint64", v
-            )
-        )
-        return self
 
     def clear_state(
         self,
         *,
         args: list[bytes] | None = None,
         params: algokit_utils.CommonAppCallParams | None = None,
-    ) -> "BankComposer":
+    ) -> "CommitFiComposer":
         params=params or algokit_utils.CommonAppCallParams()
         self._composer.add_app_call(
             self.client.params.clear_state(
@@ -870,7 +725,7 @@ class BankComposer:
     
     def add_transaction(
         self, txn: Transaction, signer: TransactionSigner | None = None
-    ) -> "BankComposer":
+    ) -> "CommitFiComposer":
         self._composer.add_transaction(txn, signer)
         return self
     

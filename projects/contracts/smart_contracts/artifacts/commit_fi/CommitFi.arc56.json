@@ -1,0 +1,116 @@
+{
+    "name": "CommitFi",
+    "structs": {},
+    "methods": [],
+    "arcs": [
+        22,
+        28
+    ],
+    "desc": "\n    Commit-Fi: Accountability Staking dApp for Study Circles\n    \n    Users form study circles, stake ALGO, set goals and deadlines.\n    Winners get refunds + rewards, losers lose their stake.\n    ",
+    "networks": {},
+    "state": {
+        "schema": {
+            "global": {
+                "ints": 6,
+                "bytes": 1
+            },
+            "local": {
+                "ints": 0,
+                "bytes": 0
+            }
+        },
+        "keys": {
+            "global": {
+                "creator": {
+                    "keyType": "AVMString",
+                    "valueType": "address",
+                    "key": "Y3JlYXRvcg=="
+                },
+                "stake_amount": {
+                    "keyType": "AVMString",
+                    "valueType": "AVMUint64",
+                    "key": "c3Rha2VfYW1vdW50"
+                },
+                "deadline": {
+                    "keyType": "AVMString",
+                    "valueType": "AVMUint64",
+                    "key": "ZGVhZGxpbmU="
+                },
+                "max_participants": {
+                    "keyType": "AVMString",
+                    "valueType": "AVMUint64",
+                    "key": "bWF4X3BhcnRpY2lwYW50cw=="
+                },
+                "current_participants": {
+                    "keyType": "AVMString",
+                    "valueType": "AVMUint64",
+                    "key": "Y3VycmVudF9wYXJ0aWNpcGFudHM="
+                },
+                "total_pooled_stake": {
+                    "keyType": "AVMString",
+                    "valueType": "AVMUint64",
+                    "key": "dG90YWxfcG9vbGVkX3N0YWtl"
+                },
+                "challenge_status": {
+                    "keyType": "AVMString",
+                    "valueType": "AVMUint64",
+                    "key": "Y2hhbGxlbmdlX3N0YXR1cw=="
+                }
+            },
+            "local": {},
+            "box": {}
+        },
+        "maps": {
+            "global": {},
+            "local": {},
+            "box": {
+                "participant_data": {
+                    "keyType": "address",
+                    "valueType": "uint64",
+                    "prefix": ""
+                }
+            }
+        }
+    },
+    "bareActions": {
+        "create": [
+            "NoOp"
+        ],
+        "call": []
+    },
+    "sourceInfo": {
+        "approval": {
+            "sourceInfo": [
+                {
+                    "pc": [
+                        149
+                    ],
+                    "errorMessage": "can only call when creating"
+                }
+            ],
+            "pcOffsetMethod": "none"
+        },
+        "clear": {
+            "sourceInfo": [],
+            "pcOffsetMethod": "none"
+        }
+    },
+    "source": {
+        "approval": "I3ByYWdtYSB2ZXJzaW9uIDEwCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBzbWFydF9jb250cmFjdHMuY29tbWl0X2ZpLmNvbnRyYWN0LkNvbW1pdEZpLl9fYWxnb3B5X2VudHJ5cG9pbnRfd2l0aF9pbml0KCkgLT4gdWludDY0OgptYWluOgogICAgaW50Y2Jsb2NrIDAKICAgIHR4biBBcHBsaWNhdGlvbklECiAgICBibnogbWFpbl9hZnRlcl9pZl9lbHNlQDIKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jb21taXRfZmkvY29udHJhY3QucHk6MjYtMjcKICAgIC8vICMgU2V0IGRlZmF1bHQgdmFsdWVzIGZvciBnbG9iYWwgc3RhdGUKICAgIC8vIHNlbGYuY3JlYXRvciA9IEdsb2JhbC5jcmVhdG9yX2FkZHJlc3MgICMgRGVwbG95ZXIgYmVjb21lcyBjcmVhdG9yCiAgICBwdXNoYnl0ZXMgImNyZWF0b3IiCiAgICBnbG9iYWwgQ3JlYXRvckFkZHJlc3MKICAgIGFwcF9nbG9iYWxfcHV0CiAgICAvLyBzbWFydF9jb250cmFjdHMvY29tbWl0X2ZpL2NvbnRyYWN0LnB5OjI4CiAgICAvLyBzZWxmLnN0YWtlX2Ftb3VudCA9IFVJbnQ2NCgwKSAgIyBUbyBiZSBzZXQgYnkgY3JlYXRvcgogICAgcHVzaGJ5dGVzICJzdGFrZV9hbW91bnQiCiAgICBpbnRjXzAgLy8gMAogICAgYXBwX2dsb2JhbF9wdXQKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jb21taXRfZmkvY29udHJhY3QucHk6MjkKICAgIC8vIHNlbGYuZGVhZGxpbmUgPSBVSW50NjQoMCkgICMgVG8gYmUgc2V0IGJ5IGNyZWF0b3IKICAgIHB1c2hieXRlcyAiZGVhZGxpbmUiCiAgICBpbnRjXzAgLy8gMAogICAgYXBwX2dsb2JhbF9wdXQKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jb21taXRfZmkvY29udHJhY3QucHk6MzAKICAgIC8vIHNlbGYubWF4X3BhcnRpY2lwYW50cyA9IFVJbnQ2NCgxMCkgICMgRGVmYXVsdCBtYXggcGFydGljaXBhbnRzCiAgICBwdXNoYnl0ZXMgIm1heF9wYXJ0aWNpcGFudHMiCiAgICBwdXNoaW50IDEwIC8vIDEwCiAgICBhcHBfZ2xvYmFsX3B1dAogICAgLy8gc21hcnRfY29udHJhY3RzL2NvbW1pdF9maS9jb250cmFjdC5weTozMQogICAgLy8gc2VsZi5jdXJyZW50X3BhcnRpY2lwYW50cyA9IFVJbnQ2NCgwKQogICAgcHVzaGJ5dGVzICJjdXJyZW50X3BhcnRpY2lwYW50cyIKICAgIGludGNfMCAvLyAwCiAgICBhcHBfZ2xvYmFsX3B1dAogICAgLy8gc21hcnRfY29udHJhY3RzL2NvbW1pdF9maS9jb250cmFjdC5weTozMgogICAgLy8gc2VsZi50b3RhbF9wb29sZWRfc3Rha2UgPSBVSW50NjQoMCkKICAgIHB1c2hieXRlcyAidG90YWxfcG9vbGVkX3N0YWtlIgogICAgaW50Y18wIC8vIDAKICAgIGFwcF9nbG9iYWxfcHV0CiAgICAvLyBzbWFydF9jb250cmFjdHMvY29tbWl0X2ZpL2NvbnRyYWN0LnB5OjMzCiAgICAvLyBzZWxmLmNoYWxsZW5nZV9zdGF0dXMgPSBVSW50NjQoMCkgICMgU3RhcnQgaW4gU2V0dXAgbW9kZQogICAgcHVzaGJ5dGVzICJjaGFsbGVuZ2Vfc3RhdHVzIgogICAgaW50Y18wIC8vIDAKICAgIGFwcF9nbG9iYWxfcHV0CgptYWluX2FmdGVyX2lmX2Vsc2VAMjoKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jb21taXRfZmkvY29udHJhY3QucHk6NQogICAgLy8gY2xhc3MgQ29tbWl0RmkoQVJDNENvbnRyYWN0KToKICAgIHR4biBOdW1BcHBBcmdzCiAgICBibnogbWFpbl9hZnRlcl9pZl9lbHNlQDYKICAgIHR4biBPbkNvbXBsZXRpb24KICAgIGJueiBtYWluX2FmdGVyX2lmX2Vsc2VANgogICAgdHhuIEFwcGxpY2F0aW9uSUQKICAgICEKICAgIGFzc2VydCAvLyBjYW4gb25seSBjYWxsIHdoZW4gY3JlYXRpbmcKICAgIHB1c2hpbnQgMSAvLyAxCiAgICByZXR1cm4KCm1haW5fYWZ0ZXJfaWZfZWxzZUA2OgogICAgLy8gc21hcnRfY29udHJhY3RzL2NvbW1pdF9maS9jb250cmFjdC5weTo1CiAgICAvLyBjbGFzcyBDb21taXRGaShBUkM0Q29udHJhY3QpOgogICAgaW50Y18wIC8vIDAKICAgIHJldHVybgo=",
+        "clear": "I3ByYWdtYSB2ZXJzaW9uIDEwCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBhbGdvcHkuYXJjNC5BUkM0Q29udHJhY3QuY2xlYXJfc3RhdGVfcHJvZ3JhbSgpIC0+IHVpbnQ2NDoKbWFpbjoKICAgIHB1c2hpbnQgMSAvLyAxCiAgICByZXR1cm4K"
+    },
+    "byteCode": {
+        "approval": "CiABADEYQAB/gAdjcmVhdG9yMglngAxzdGFrZV9hbW91bnQiZ4AIZGVhZGxpbmUiZ4AQbWF4X3BhcnRpY2lwYW50c4EKZ4AUY3VycmVudF9wYXJ0aWNpcGFudHMiZ4ASdG90YWxfcG9vbGVkX3N0YWtlImeAEGNoYWxsZW5nZV9zdGF0dXMiZzEbQAAMMRlAAAcxGBREgQFDIkM=",
+        "clear": "CoEBQw=="
+    },
+    "compilerInfo": {
+        "compiler": "puya",
+        "compilerVersion": {
+            "major": 4,
+            "minor": 7,
+            "patch": 0
+        }
+    },
+    "events": [],
+    "templateVariables": {}
+}
