@@ -1,7 +1,7 @@
-#pragma version 11
+#pragma version 10
 #pragma typetrack false
 
-// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+// smart_contracts.bank.contract.Bank.__algopy_entrypoint_with_init() -> uint64:
 main:
     intcblock 1 0
     bytecblock "total_deposit" 0x151f7c75
@@ -17,103 +17,32 @@ main_after_if_else@2:
     // smart_contracts/bank/contract.py:5
     // class Bank(ARC4Contract):
     txn NumAppArgs
-    bz main___algopy_default_create@11
-    txn OnCompletion
-    !
-    assert // OnCompletion must be NoOp
-    txn ApplicationID
-    assert
+    bz main_bare_routing@7
     pushbytess 0x9f597c32 0x31214176 // method "deposit(string,pay)uint64", method "withdraw(uint64)uint64"
     txna ApplicationArgs 0
-    match deposit withdraw
-    err
+    match main_deposit_route@5 main_withdraw_route@6
 
-main___algopy_default_create@11:
+main_after_if_else@9:
+    // smart_contracts/bank/contract.py:5
+    // class Bank(ARC4Contract):
+    intc_1 // 0
+    return
+
+main_withdraw_route@6:
+    // smart_contracts/bank/contract.py:28
+    // @abimethod()
     txn OnCompletion
     !
+    assert // OnCompletion is not NoOp
     txn ApplicationID
-    !
-    &&
-    return // on error: OnCompletion must be NoOp && can only call when creating
-
-
-// smart_contracts.bank.contract.Bank.deposit[routing]() -> void:
-deposit:
-    // smart_contracts/bank/contract.py:13
-    // @abimethod()
+    assert // can only call when not creating
+    // smart_contracts/bank/contract.py:5
+    // class Bank(ARC4Contract):
     txna ApplicationArgs 1
-    dup
-    intc_1 // 0
-    extract_uint16
-    pushint 2 // 2
-    +
-    swap
-    len
-    ==
-    assert // invalid number of bytes for (len+utf8[])
-    txn GroupIndex
-    intc_0 // 1
-    -
-    dup
-    gtxns TypeEnum
-    intc_0 // pay
-    ==
-    assert // transaction type is pay
-    // smart_contracts/bank/contract.py:16
-    // assert pay_txn.receiver == Global.current_application_address, "Receiver must be the contract address"
-    dup
-    gtxns Receiver
-    global CurrentApplicationAddress
-    ==
-    assert // Receiver must be the contract address
-    // smart_contracts/bank/contract.py:17
-    // assert pay_txn.amount > 0, "Deposit amount must be greater than zero"
-    dup
-    gtxns Amount
-    dup
-    cover 2
-    assert // Deposit amount must be greater than zero
-    // smart_contracts/bank/contract.py:19
-    // amount, exists = self.deposits.maybe(pay_txn.sender)
-    gtxns Sender
-    dup
-    box_get
-    swap
     btoi
-    swap
-    // smart_contracts/bank/contract.py:20
-    // if exists:
-    bz deposit_else_body@3
-    // smart_contracts/bank/contract.py:21
-    // self.deposits[pay_txn.sender] = amount + pay_txn.amount
-    dup
-    dig 3
-    +
-    itob
-    dig 2
-    swap
-    box_put
-
-deposit_after_if_else@4:
-    // smart_contracts/bank/contract.py:25
-    // self.total_deposit += pay_txn.amount
-    intc_1 // 0
-    bytec_0 // "total_deposit"
-    app_global_get_ex
-    assert // check self.total_deposit exists
-    dig 3
-    +
-    bytec_0 // "total_deposit"
-    swap
-    app_global_put
-    // smart_contracts/bank/contract.py:26
-    // return self.deposits[pay_txn.sender]
-    dig 1
-    box_get
-    assert // check self.deposits entry exists
-    btoi
-    // smart_contracts/bank/contract.py:13
+    // smart_contracts/bank/contract.py:28
     // @abimethod()
+    callsub withdraw
     itob
     bytec_1 // 0x151f7c75
     swap
@@ -122,28 +51,130 @@ deposit_after_if_else@4:
     intc_0 // 1
     return
 
-deposit_else_body@3:
-    // smart_contracts/bank/contract.py:23
-    // self.deposits[pay_txn.sender] = pay_txn.amount
-    dig 2
+main_deposit_route@5:
+    // smart_contracts/bank/contract.py:13
+    // @abimethod()
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    // smart_contracts/bank/contract.py:5
+    // class Bank(ARC4Contract):
+    txna ApplicationArgs 1
+    extract 2 0
+    txn GroupIndex
+    intc_0 // 1
+    -
+    dup
+    gtxns TypeEnum
+    intc_0 // pay
+    ==
+    assert // transaction type is pay
+    // smart_contracts/bank/contract.py:13
+    // @abimethod()
+    callsub deposit
     itob
-    dig 2
+    bytec_1 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return
+
+main_bare_routing@7:
+    // smart_contracts/bank/contract.py:5
+    // class Bank(ARC4Contract):
+    txn OnCompletion
+    bnz main_after_if_else@9
+    txn ApplicationID
+    !
+    assert // can only call when creating
+    intc_0 // 1
+    return
+
+
+// smart_contracts.bank.contract.Bank.deposit(memo: bytes, pay_txn: uint64) -> uint64:
+deposit:
+    // smart_contracts/bank/contract.py:13-14
+    // @abimethod()
+    // def deposit(self, memo: String, pay_txn: gtxn.PaymentTransaction) -> UInt64:
+    proto 2 1
+    // smart_contracts/bank/contract.py:16
+    // assert pay_txn.receiver == Global.current_application_address, "Receiver must be the contract address"
+    frame_dig -1
+    gtxns Receiver
+    global CurrentApplicationAddress
+    ==
+    assert // Receiver must be the contract address
+    // smart_contracts/bank/contract.py:17
+    // assert pay_txn.amount > 0, "Deposit amount must be greater than zero"
+    frame_dig -1
+    gtxns Amount
+    dup
+    assert // Deposit amount must be greater than zero
+    // smart_contracts/bank/contract.py:19
+    // amount, exists = self.deposits.maybe(pay_txn.sender)
+    frame_dig -1
+    gtxns Sender
+    dup
+    box_get
+    swap
+    btoi
+    swap
+    // smart_contracts/bank/contract.py:20
+    // if exists:
+    bz deposit_else_body@2
+    // smart_contracts/bank/contract.py:21
+    // self.deposits[pay_txn.sender] = amount + pay_txn.amount
+    frame_dig 2
+    frame_dig 0
+    +
+    itob
+    frame_dig 1
     swap
     box_put
-    b deposit_after_if_else@4
 
-
-// smart_contracts.bank.contract.Bank.withdraw[routing]() -> void:
-withdraw:
-    // smart_contracts/bank/contract.py:28
-    // @abimethod()
-    txna ApplicationArgs 1
-    dup
-    len
-    pushint 8 // 8
-    ==
-    assert // invalid number of bytes for uint64
+deposit_after_if_else@3:
+    // smart_contracts/bank/contract.py:25
+    // self.total_deposit += pay_txn.amount
+    intc_1 // 0
+    bytec_0 // "total_deposit"
+    app_global_get_ex
+    assert // check self.total_deposit exists
+    frame_dig 0
+    +
+    bytec_0 // "total_deposit"
+    swap
+    app_global_put
+    // smart_contracts/bank/contract.py:26
+    // return self.deposits[pay_txn.sender]
+    frame_dig 1
+    box_get
+    swap
     btoi
+    swap
+    assert // check self.deposits entry exists
+    frame_bury 0
+    retsub
+
+deposit_else_body@2:
+    // smart_contracts/bank/contract.py:23
+    // self.deposits[pay_txn.sender] = pay_txn.amount
+    frame_dig 0
+    itob
+    frame_dig 1
+    swap
+    box_put
+    b deposit_after_if_else@3
+
+
+// smart_contracts.bank.contract.Bank.withdraw(amount: uint64) -> uint64:
+withdraw:
+    // smart_contracts/bank/contract.py:28-29
+    // @abimethod()
+    // def withdraw(self, amount: UInt64) -> UInt64:
+    proto 1 1
     // smart_contracts/bank/contract.py:31
     // current, exists = self.deposits.maybe(Txn.sender)
     txn Sender
@@ -156,18 +187,19 @@ withdraw:
     assert // No deposits found for this account
     // smart_contracts/bank/contract.py:33
     // assert amount > 0, "Withdrawal amount must be greater than zero"
-    dig 1
+    frame_dig -1
     assert // Withdrawal amount must be greater than zero
     // smart_contracts/bank/contract.py:34
     // assert amount <= current, "Withdrawal amount exceeds balance"
-    dup2
+    frame_dig -1
+    dig 1
     <=
     assert // Withdrawal amount exceeds balance
     // smart_contracts/bank/contract.py:36
     // itxn.Payment(receiver=Txn.sender, amount=amount, fee=0).submit()
     itxn_begin
     txn Sender
-    dig 2
+    frame_dig -1
     itxn_field Amount
     itxn_field Receiver
     intc_0 // pay
@@ -177,35 +209,30 @@ withdraw:
     itxn_submit
     // smart_contracts/bank/contract.py:38
     // remaining = current - amount
-    swap
+    frame_dig -1
     -
     dup
     // smart_contracts/bank/contract.py:39
     // if remaining == UInt64(0):
-    bnz withdraw_else_body@4
+    bnz withdraw_else_body@3
     // smart_contracts/bank/contract.py:40
     // del self.deposits[Txn.sender]
     txn Sender
     box_del
     pop
 
-withdraw_after_if_else@5:
-    // smart_contracts/bank/contract.py:28
-    // @abimethod()
-    dup
-    itob
-    bytec_1 // 0x151f7c75
+withdraw_after_if_else@4:
+    // smart_contracts/bank/contract.py:44
+    // return remaining
+    frame_dig 0
     swap
-    concat
-    log
-    intc_0 // 1
-    return
+    retsub
 
-withdraw_else_body@4:
+withdraw_else_body@3:
     // smart_contracts/bank/contract.py:42
     // self.deposits[Txn.sender] = remaining
     txn Sender
-    dig 1
+    frame_dig 0
     itob
     box_put
-    b withdraw_after_if_else@5
+    b withdraw_after_if_else@4

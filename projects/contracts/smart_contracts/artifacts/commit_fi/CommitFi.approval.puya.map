@@ -1,0 +1,261 @@
+{
+  "version": 3,
+  "sources": [
+    "../../commit_fi/contract.py"
+  ],
+  "mappings": ";;;;;;;;;AA0BQ;;;;;;;;;AAAe;;AAAf;AACA;;;;;;;;;;;;;;AAAoB;AAApB;AACA;;;;;;;;;;AAAgB;AAAhB;AACA;;;;;;;;;;;;;;;;;;AAAwB;;AAAxB;AACA;;;;;;;;;;;;;;;;;;;;;;AAA4B;AAA5B;AACA;;;;;;;;;;;;;;;;;;;;AAA0B;AAA1B;AACA;;;;;;;;;;;;;;;;;;AAAwB;AAAxB;AA5BR;;AAAA;;;AAAA;;AAAA;;;;;;;;;;AAAA;",
+  "op_pc_offset": 0,
+  "pc_events": {
+    "1": {
+      "subroutine": "smart_contracts.commit_fi.contract.CommitFi.__algopy_entrypoint_with_init",
+      "params": {},
+      "block": "main",
+      "stack_in": [],
+      "op": "intcblock 0"
+    },
+    "4": {
+      "op": "txn ApplicationID",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "6": {
+      "op": "bnz main_after_if_else@2",
+      "stack_out": []
+    },
+    "9": {
+      "op": "pushbytes \"creator\"",
+      "defined_out": [
+        "\"creator\""
+      ],
+      "stack_out": [
+        "\"creator\""
+      ]
+    },
+    "18": {
+      "op": "global CreatorAddress",
+      "defined_out": [
+        "\"creator\"",
+        "new_state_value%0#0"
+      ],
+      "stack_out": [
+        "\"creator\"",
+        "new_state_value%0#0"
+      ]
+    },
+    "20": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "21": {
+      "op": "pushbytes \"stake_amount\"",
+      "defined_out": [
+        "\"stake_amount\""
+      ],
+      "stack_out": [
+        "\"stake_amount\""
+      ]
+    },
+    "35": {
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "\"stake_amount\"",
+        "0"
+      ],
+      "stack_out": [
+        "\"stake_amount\"",
+        "0"
+      ]
+    },
+    "36": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "37": {
+      "op": "pushbytes \"deadline\"",
+      "defined_out": [
+        "\"deadline\""
+      ],
+      "stack_out": [
+        "\"deadline\""
+      ]
+    },
+    "47": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "\"deadline\"",
+        "0"
+      ]
+    },
+    "48": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "49": {
+      "op": "pushbytes \"max_participants\"",
+      "defined_out": [
+        "\"max_participants\""
+      ],
+      "stack_out": [
+        "\"max_participants\""
+      ]
+    },
+    "67": {
+      "op": "pushint 10 // 10",
+      "defined_out": [
+        "\"max_participants\"",
+        "10"
+      ],
+      "stack_out": [
+        "\"max_participants\"",
+        "10"
+      ]
+    },
+    "69": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "70": {
+      "op": "pushbytes \"current_participants\"",
+      "defined_out": [
+        "\"current_participants\""
+      ],
+      "stack_out": [
+        "\"current_participants\""
+      ]
+    },
+    "92": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "\"current_participants\"",
+        "0"
+      ]
+    },
+    "93": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "94": {
+      "op": "pushbytes \"total_pooled_stake\"",
+      "defined_out": [
+        "\"total_pooled_stake\""
+      ],
+      "stack_out": [
+        "\"total_pooled_stake\""
+      ]
+    },
+    "114": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "\"total_pooled_stake\"",
+        "0"
+      ]
+    },
+    "115": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "116": {
+      "op": "pushbytes \"challenge_status\"",
+      "defined_out": [
+        "\"challenge_status\""
+      ],
+      "stack_out": [
+        "\"challenge_status\""
+      ]
+    },
+    "134": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "\"challenge_status\"",
+        "0"
+      ]
+    },
+    "135": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "136": {
+      "block": "main_after_if_else@2",
+      "stack_in": [],
+      "op": "txn NumAppArgs",
+      "defined_out": [
+        "tmp%0#2"
+      ],
+      "stack_out": [
+        "tmp%0#2"
+      ]
+    },
+    "138": {
+      "op": "bnz main_after_if_else@6",
+      "stack_out": []
+    },
+    "141": {
+      "op": "txn OnCompletion",
+      "defined_out": [
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%2#0"
+      ]
+    },
+    "143": {
+      "op": "bnz main_after_if_else@6",
+      "stack_out": []
+    },
+    "146": {
+      "op": "txn ApplicationID",
+      "defined_out": [
+        "tmp%3#0"
+      ],
+      "stack_out": [
+        "tmp%3#0"
+      ]
+    },
+    "148": {
+      "op": "!",
+      "defined_out": [
+        "tmp%4#0"
+      ],
+      "stack_out": [
+        "tmp%4#0"
+      ]
+    },
+    "149": {
+      "error": "can only call when creating",
+      "op": "assert // can only call when creating",
+      "stack_out": []
+    },
+    "150": {
+      "op": "pushint 1 // 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "152": {
+      "op": "return",
+      "stack_out": []
+    },
+    "153": {
+      "block": "main_after_if_else@6",
+      "stack_in": [],
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "154": {
+      "op": "return",
+      "stack_out": []
+    }
+  }
+}
