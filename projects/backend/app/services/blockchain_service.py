@@ -8,6 +8,7 @@ from algokit_utils import (
     AlgorandClient,
     get_algod_client,
     get_indexer_client,
+    AlgoClientConfig,
 )
 from algosdk.v2client.algod import AlgodClient
 from algosdk.v2client.indexer import IndexerClient
@@ -27,25 +28,27 @@ class BlockchainService:
         """Initialize the blockchain service."""
         self.algod_client = self._get_algod_client()
         self.indexer_client = self._get_indexer_client()
-        self.algorand_client = AlgorandClient(
-            algod_client=self.algod_client,
-            indexer_client=self.indexer_client,
+        self.algorand_client = AlgorandClient.from_clients(
+            algod=self.algod_client,     # <--- Correct keyword
+            indexer=self.indexer_client, # <--- Correct keyword
         )
         self.app_id = settings.GUARDIAN_VAULT_APP_ID
     
     def _get_algod_client(self) -> AlgodClient:
         """Get the Algorand algod client."""
-        return get_algod_client(
-            url=settings.ALGORAND_NODE_URL or "https://testnet-api.algonode.cloud",
+        config = AlgoClientConfig(
+            server=settings.ALGORAND_NODE_URL or "https://testnet-api.algonode.cloud",
             token=""
         )
+        return get_algod_client(config)
     
     def _get_indexer_client(self) -> IndexerClient:
         """Get the Algorand indexer client."""
-        return get_indexer_client(
-            url=settings.ALGORAND_INDEXER_URL or "https://testnet-idx.algonode.cloud",
+        config = AlgoClientConfig(
+            server=settings.ALGORAND_INDEXER_URL or "https://testnet-idx.algonode.cloud",
             token=""
         )
+        return get_indexer_client(config)
     
     async def get_vault_status(
         self,

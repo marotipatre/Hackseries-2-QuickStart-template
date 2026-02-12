@@ -21,6 +21,7 @@ class VaultCreate(BaseModel):
     )
     user_address: str = Field(
         ...,
+        alias="wallet_address",  # <--- THIS IS THE FIX
         description="User's Algorand address"
     )
 

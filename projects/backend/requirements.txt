@@ -8,7 +8,7 @@ pydantic-settings==2.1.0
 httpx==0.26.0
 
 # Algorand SDK
-algokit-utils==5.0.0a15
+algokit-utils
 
 # Database
 sqlalchemy==2.0.25
