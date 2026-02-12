@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+
+{% block title %}ChainGuardian - AI-Powered DeFi Risk & Compliance Assistant{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="text-center mb-16">
+    <h1 class="text-5xl font-bold text-gray-900 mb-6">
+        AI-Powered DeFi Risk & Compliance Assistant
+    </h1>
+    <p class="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
+        ChainGuardian combines off-chain AI intelligence with on-chain blockchain enforcement to protect users from
+        risky or fraudulent financial actions on Algorand.
+    </p>
+    <div class="flex justify-center space-x-4">
+        <a href="/dashboard"
+            class="bg-primary text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-600 transition shadow-lg">
+            Get Started
+        </a>
+        <a href="/docs"
+            class="bg-white text-gray-800 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition shadow-lg border border-gray-300">
+            View Documentation
+        </a>
+    </div>
+</div>
+
+<!-- Features Grid -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+    <!-- AI Risk Engine -->
+    <div class="bg-white rounded-xl shadow-lg p-6 card-hover transition-all duration-300">
+        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z">
+                </path>
+            </svg>
+        </div>
+        <h3 class="text-xl font-semibold text-gray-900 mb-2">AI Risk Engine</h3>
+        <p class="text-gray-600">Advanced AI analysis powered by OpenRouter's nemotron-3-nano-30b-a3b model to assess
+            transaction risks in real-time.</p>
+    </div>
+
+    <!-- Blockchain Enforcement -->
+    <div class="bg-white rounded-xl shadow-lg p-6 card-hover transition-all duration-300">
+        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
+            <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z">
+                </path>
+            </svg>
+        </div>
+        <h3 class="text-xl font-semibold text-gray-900 mb-2">Blockchain Enforcement</h3>
+        <p class="text-gray-600">Smart contracts on Algorand enforce strict rules, ensuring AI cannot bypass security
+            controls.</p>
+    </div>
+
+    <!-- Immutable Audit Trail -->
+    <div class="bg-white rounded-xl shadow-lg p-6 card-hover transition-all duration-300">
+        <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
+            <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01">
+                </path>
+            </svg>
+        </div>
+        <h3 class="text-xl font-semibold text-gray-900 mb-2">Immutable Audit Trail</h3>
+        <p class="text-gray-600">All decisions are logged on-chain, providing complete transparency and compliance-ready
+            records.</p>
+    </div>
+</div>
+
+<!-- How It Works -->
+<div class="bg-white rounded-xl shadow-lg p-8 mb-16">
+    <h2 class="text-3xl font-bold text-gray-900 mb-8 text-center">How ChainGuardian Works</h2>
+    <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+        <div class="text-center">
+            <div
+                class="w-16 h-16 bg-blue-600 text-white rounded-full flex items-center justify-center mx-auto mb-4 text-2xl font-bold">
+                1</div>
+            <h4 class="font-semibold text-gray-900 mb-2">Create Vault</h4>
+            <p class="text-sm text-gray-600">Set up your Guardian Vault with risk thresholds</p>
+        </div>
+        <div class="text-center">
+            <div
+                class="w-16 h-16 bg-blue-600 text-white rounded-full flex items-center justify-center mx-auto mb-4 text-2xl font-bold">
+                2</div>
+            <h4 class="font-semibold text-gray-900 mb-2">Submit Transaction</h4>
+            <p class="text-sm text-gray-600">Enter transaction details for analysis</p>
+        </div>
+        <div class="text-center">
+            <div
+                class="w-16 h-16 bg-blue-600 text-white rounded-full flex items-center justify-center mx-auto mb-4 text-2xl font-bold">
+                3</div>
+            <h4 class="font-semibold text-gray-900 mb-2">AI Analysis</h4>
+            <p class="text-sm text-gray-600">AI analyzes risk and generates score</p>
+        </div>
+        <div class="text-center">
+            <div
+                class="w-16 h-16 bg-blue-600 text-white rounded-full flex items-center justify-center mx-auto mb-4 text-2xl font-bold">
+                4</div>
+            <h4 class="font-semibold text-gray-900 mb-2">Blockchain Check</h4>
+            <p class="text-sm text-gray-600">Smart contract enforces rules</p>
+        </div>
+        <div class="text-center">
+            <div
+                class="w-16 h-16 bg-blue-600 text-white rounded-full flex items-center justify-center mx-auto mb-4 text-2xl font-bold">
+                5</div>
+            <h4 class="font-semibold text-gray-900 mb-2">Decision</h4>
+            <p class="text-sm text-gray-600">Transaction allowed, blocked, or frozen</p>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+    <a href="/vault"
+        class="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl shadow-lg p-8 card-hover transition-all duration-300">
+        <h3 class="text-2xl font-bold mb-4">Create Your Guardian Vault</h3>
+        <p class="mb-6">Set up your vault with custom risk thresholds and start protecting your DeFi transactions today.
+        </p>
+        <span class="inline-flex items-center font-semibold">
+            Get Started
+            <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3">
+                </path>
+            </svg>
+        </span>
+    </a>
+
+    <a href="/analysis"
+        class="bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl shadow-lg p-8 card-hover transition-all duration-300">
+        <h3 class="text-2xl font-bold mb-4">Analyze a Transaction</h3>
+        <p class="mb-6">Use our AI-powered risk engine to analyze any DeFi transaction before executing it.</p>
+        <span class="inline-flex items-center font-semibold">
+            Analyze Now
+            <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3">
+                </path>
+            </svg>
+        </span>
+    </a>
+</div>
+{% endblock %}

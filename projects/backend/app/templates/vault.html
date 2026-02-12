@@ -1,0 +1,269 @@
+{% extends "base.html" %}
+
+{% block title %}Vault Management - ChainGuardian{% endblock %}
+
+{% block content %}
+<div class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-900 mb-2">Guardian Vault</h1>
+    <p class="text-gray-600">Create and manage your Guardian Vault with custom risk thresholds</p>
+</div>
+
+<!-- Vault Creation Form -->
+<div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+    <h2 class="text-xl font-semibold text-gray-900 mb-6">Create New Vault</h2>
+
+    <form id="create-vault-form" onsubmit="createVault(event)">
+        <div class="mb-6">
+            <label for="risk-threshold" class="block text-sm font-medium text-gray-700 mb-2">
+                Risk Threshold (0-100)
+            </label>
+            <input type="range" id="risk-threshold" name="risk_threshold" min="0" max="100" value="50"
+                class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                oninput="updateThresholdDisplay(this.value)">
+            <div class="flex justify-between text-sm text-gray-500 mt-2">
+                <span>0 (Strict)</span>
+                <span id="threshold-value" class="font-semibold text-blue-600">50</span>
+                <span>100 (Permissive)</span>
+            </div>
+            <p class="text-xs text-gray-500 mt-2">
+                Transactions with a risk score above this threshold will be blocked by the smart contract.
+            </p>
+        </div>
+
+        <div class="mb-6">
+            <label for="wallet-address" class="block text-sm font-medium text-gray-700 mb-2">
+                Wallet Address
+            </label>
+            <input type="text" id="wallet-address" name="wallet_address"
+                placeholder="Enter your Algorand wallet address"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                required>
+            <p class="text-xs text-gray-500 mt-2">
+                The wallet address that will own this vault.
+            </p>
+        </div>
+
+        <button type="submit" id="create-btn"
+            class="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed">
+            Create Guardian Vault
+        </button>
+    </form>
+</div>
+
+<!-- Existing Vault Section -->
+<div id="existing-vault-section" class="bg-white rounded-xl shadow-lg p-6 mb-8 hidden">
+    <h2 class="text-xl font-semibold text-gray-900 mb-6">Update Existing Vault</h2>
+
+    <form id="update-vault-form" onsubmit="updateVault(event)">
+        <div class="mb-6">
+            <label for="update-risk-threshold" class="block text-sm font-medium text-gray-700 mb-2">
+                New Risk Threshold (0-100)
+            </label>
+            <input type="range" id="update-risk-threshold" name="risk_threshold" min="0" max="100" value="50"
+                class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                oninput="updateUpdateThresholdDisplay(this.value)">
+            <div class="flex justify-between text-sm text-gray-500 mt-2">
+                <span>0 (Strict)</span>
+                <span id="update-threshold-value" class="font-semibold text-blue-600">50</span>
+                <span>100 (Permissive)</span>
+            </div>
+        </div>
+
+        <button type="submit" id="update-btn"
+            class="w-full bg-green-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-green-700 transition disabled:opacity-50 disabled:cursor-not-allowed">
+            Update Vault Threshold
+        </button>
+    </form>
+
+    <div class="mt-6 pt-6 border-t border-gray-200">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Vault Information</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <p class="text-sm text-gray-600">Vault Address</p>
+                <p id="vault-address-display" class="font-mono text-sm text-gray-900 break-all">--</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-600">Current Threshold</p>
+                <p id="current-threshold-display" class="font-semibold text-gray-900">--</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-600">Current Risk Score</p>
+                <p id="current-risk-display" class="font-semibold text-gray-900">--</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-600">Status</p>
+                <p id="vault-status-display" class="font-semibold">--</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Vault Info Card -->
+<div class="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl shadow-lg p-6">
+    <h3 class="text-lg font-semibold mb-4">About Guardian Vaults</h3>
+    <ul class="space-y-2 text-sm">
+        <li class="flex items-start">
+            <svg class="w-5 h-5 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+            <span>Each vault is protected by a smart contract on Algorand</span>
+        </li>
+        <li class="flex items-start">
+            <svg class="w-5 h-5 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+            <span>AI analyzes transactions and provides risk scores</span>
+        </li>
+        <li class="flex items-start">
+            <svg class="w-5 h-5 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+            <span>Smart contract enforces your risk threshold</span>
+        </li>
+        <li class="flex items-start">
+            <svg class="w-5 h-5 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+            <span>All decisions are logged immutably on-chain</span>
+        </li>
+        <li class="flex items-start">
+            <svg class="w-5 h-5 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+            <span>You can freeze your vault at any time for emergency protection</span>
+        </li>
+    </ul>
+</div>
+
+<script>
+    let vaultData = null;
+
+    async function loadVaultStatus() {
+        try {
+            const response = await fetch('/api/vault/status');
+            const data = await response.json();
+
+            if (data.vault_address) {
+                vaultData = data;
+                showExistingVault(data);
+            } else {
+                hideExistingVault();
+            }
+        } catch (error) {
+            console.error('Error loading vault status:', error);
+        }
+    }
+
+    function showExistingVault(data) {
+        document.getElementById('existing-vault-section').classList.remove('hidden');
+        document.getElementById('vault-address-display').textContent = data.vault_address;
+        document.getElementById('current-threshold-display').textContent = data.risk_threshold || 50;
+        document.getElementById('current-risk-display').textContent = data.risk_score || 0;
+
+        const statusDisplay = document.getElementById('vault-status-display');
+        if (data.is_frozen) {
+            statusDisplay.textContent = 'FROZEN';
+            statusDisplay.className = 'font-semibold text-red-300';
+        } else {
+            statusDisplay.textContent = 'ACTIVE';
+            statusDisplay.className = 'font-semibold text-green-300';
+        }
+
+        // Set update threshold to current value
+        document.getElementById('update-risk-threshold').value = data.risk_threshold || 50;
+        updateUpdateThresholdDisplay(data.risk_threshold || 50);
+    }
+
+    function hideExistingVault() {
+        document.getElementById('existing-vault-section').classList.add('hidden');
+    }
+
+    function updateThresholdDisplay(value) {
+        document.getElementById('threshold-value').textContent = value;
+    }
+
+    function updateUpdateThresholdDisplay(value) {
+        document.getElementById('update-threshold-value').textContent = value;
+    }
+
+    async function createVault(event) {
+        event.preventDefault();
+
+        const form = event.target;
+        const formData = new FormData(form);
+
+        const data = {
+            wallet_address: formData.get('wallet_address'),
+            risk_threshold: parseInt(formData.get('risk_threshold'))
+        };
+
+        const btn = document.getElementById('create-btn');
+        btn.disabled = true;
+        btn.textContent = 'Creating...';
+
+        try {
+            const response = await fetch('/api/vault/create', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            const result = await response.json();
+
+            if (response.ok) {
+                alert('Vault created successfully!');
+                form.reset();
+                updateThresholdDisplay(50);
+                loadVaultStatus();
+            } else {
+                alert('Failed to create vault: ' + (result.detail || 'Unknown error'));
+            }
+        } catch (error) {
+            console.error('Error creating vault:', error);
+            alert('Failed to create vault');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'Create Guardian Vault';
+        }
+    }
+
+    async function updateVault(event) {
+        event.preventDefault();
+
+        const form = event.target;
+        const formData = new FormData(form);
+
+        const data = {
+            risk_threshold: parseInt(formData.get('risk_threshold'))
+        };
+
+        const btn = document.getElementById('update-btn');
+        btn.disabled = true;
+        btn.textContent = 'Updating...';
+
+        try {
+            const response = await fetch('/api/vault/update', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            const result = await response.json();
+
+            if (response.ok) {
+                alert('Vault updated successfully!');
+                loadVaultStatus();
+            } else {
+                alert('Failed to update vault: ' + (result.detail || 'Unknown error'));
+            }
+        } catch (error) {
+            console.error('Error updating vault:', error);
+            alert('Failed to update vault');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'Update Vault Threshold';
+        }
+    }
+
+    // Load vault status on page load
+    document.addEventListener('DOMContentLoaded', loadVaultStatus);
+</script>
+{% endblock %}

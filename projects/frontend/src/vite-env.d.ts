@@ -19,6 +19,10 @@ interface ImportMetaEnv {
   readonly VITE_KMD_WALLET: string
   readonly VITE_PINATA_JWT?: string
   readonly VITE_PINATA_GATEWAY?: string
+
+  // ChainGuardian Backend
+  readonly VITE_API_URL?: string
+  readonly VITE_CONTRACT_APP_ID?: string
 }
 
 interface ImportMeta {

@@ -1,0 +1,360 @@
+{% extends "base.html" %}
+
+{% block title %}Audit Log - ChainGuardian{% endblock %}
+
+{% block content %}
+<div class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-900 mb-2">Audit Log</h1>
+    <p class="text-gray-600">View immutable on-chain and off-chain audit records</p>
+</div>
+
+<!-- Filter Controls -->
+<div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div>
+            <label for="filter-source" class="block text-sm font-medium text-gray-700 mb-2">
+                Source
+            </label>
+            <select id="filter-source"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                onchange="loadAuditLog()">
+                <option value="all">All Sources</option>
+                <option value="onchain">On-Chain Only</option>
+                <option value="offchain">Off-Chain Only</option>
+            </select>
+        </div>
+
+        <div>
+            <label for="filter-decision" class="block text-sm font-medium text-gray-700 mb-2">
+                Decision
+            </label>
+            <select id="filter-decision"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                onchange="loadAuditLog()">
+                <option value="all">All Decisions</option>
+                <option value="0">Blocked</option>
+                <option value="1">Allowed</option>
+                <option value="2">Frozen</option>
+            </select>
+        </div>
+
+        <div>
+            <label for="filter-limit" class="block text-sm font-medium text-gray-700 mb-2">
+                Limit
+            </label>
+            <select id="filter-limit"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                onchange="loadAuditLog()">
+                <option value="10">10 entries</option>
+                <option value="25">25 entries</option>
+                <option value="50">50 entries</option>
+                <option value="100">100 entries</option>
+            </select>
+        </div>
+
+        <div class="flex items-end">
+            <button onclick="loadAuditLog()"
+                class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg font-semibold hover:bg-blue-700 transition">
+                Refresh
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Audit Statistics -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+    <div class="bg-white rounded-xl shadow-lg p-6">
+        <p class="text-sm text-gray-600 mb-2">Total Entries</p>
+        <p id="stat-total" class="text-3xl font-bold text-gray-900">--</p>
+    </div>
+    <div class="bg-white rounded-xl shadow-lg p-6">
+        <p class="text-sm text-gray-600 mb-2">Allowed</p>
+        <p id="stat-allowed" class="text-3xl font-bold text-green-600">--</p>
+    </div>
+    <div class="bg-white rounded-xl shadow-lg p-6">
+        <p class="text-sm text-gray-600 mb-2">Blocked</p>
+        <p id="stat-blocked" class="text-3xl font-bold text-red-600">--</p>
+    </div>
+    <div class="bg-white rounded-xl shadow-lg p-6">
+        <p class="text-sm text-gray-600 mb-2">Frozen</p>
+        <p id="stat-frozen" class="text-3xl font-bold text-orange-600">--</p>
+    </div>
+</div>
+
+<!-- Audit Log Table -->
+<div class="bg-white rounded-xl shadow-lg overflow-hidden">
+    <div class="px-6 py-4 border-b border-gray-200">
+        <h2 class="text-xl font-semibold text-gray-900">Audit Entries</h2>
+    </div>
+
+    <div class="overflow-x-auto">
+        <table class="w-full">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Timestamp
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Source
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Decision
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Risk
+                        Score</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Transaction Type</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Details
+                    </th>
+                </tr>
+            </thead>
+            <tbody id="audit-table-body" class="bg-white divide-y divide-gray-200">
+                <tr>
+                    <td colspan="6" class="px-6 py-12 text-center text-gray-500">
+                        Loading audit log...
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Load More Button -->
+    <div id="load-more-container" class="px-6 py-4 border-t border-gray-200 hidden">
+        <button id="load-more-btn" onclick="loadMore()"
+            class="w-full bg-gray-100 text-gray-700 py-2 px-4 rounded-lg font-semibold hover:bg-gray-200 transition">
+            Load More
+        </button>
+    </div>
+</div>
+
+<!-- Audit Info Card -->
+<div class="mt-8 bg-gradient-to-r from-indigo-500 to-indigo-600 text-white rounded-xl shadow-lg p-6">
+    <h3 class="text-lg font-semibold mb-4">About Audit Logs</h3>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+            <h4 class="font-semibold mb-2">On-Chain Audit</h4>
+            <p class="text-sm text-indigo-200">Immutable records stored on the Algorand blockchain. These cannot be
+                altered and provide permanent proof of all decisions made by the smart contract.</p>
+        </div>
+        <div>
+            <h4 class="font-semibold mb-2">Off-Chain Audit</h4>
+            <p class="text-sm text-indigo-200">Detailed records stored in our database for faster access and additional
+                metadata. Used for analytics and compliance reporting.</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentOffset = 0;
+    let currentLimit = 10;
+    let hasMore = false;
+
+    async function loadAuditLog() {
+        const source = document.getElementById('filter-source').value;
+        const decision = document.getElementById('filter-decision').value;
+        currentLimit = parseInt(document.getElementById('filter-limit').value);
+        currentOffset = 0;
+
+        try {
+            const params = new URLSearchParams({
+                limit: currentLimit,
+                offset: currentOffset
+            });
+
+            if (source !== 'all') {
+                params.append('source', source);
+            }
+            if (decision !== 'all') {
+                params.append('decision', decision);
+            }
+
+            const response = await fetch(`/api/audit/log?${params}`);
+            const data = await response.json();
+
+            if (response.ok) {
+                displayAuditLog(data);
+                updateStatistics(data);
+            } else {
+                showError('Failed to load audit log');
+            }
+        } catch (error) {
+            console.error('Error loading audit log:', error);
+            showError('Failed to load audit log');
+        }
+    }
+
+    function displayAuditLog(data) {
+        const tbody = document.getElementById('audit-table-body');
+
+        if (!data.entries || data.entries.length === 0) {
+            tbody.innerHTML = `
+            <tr>
+                <td colspan="6" class="px-6 py-12 text-center text-gray-500">
+                    No audit entries found
+                </td>
+            </tr>
+        `;
+            document.getElementById('load-more-container').classList.add('hidden');
+            return;
+        }
+
+        tbody.innerHTML = data.entries.map(entry => `
+        <tr class="hover:bg-gray-50">
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                ${formatTimestamp(entry.timestamp)}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <span class="px-2 py-1 text-xs font-medium rounded-full ${entry.source === 'onchain' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'}">
+                    ${entry.source === 'onchain' ? 'On-Chain' : 'Off-Chain'}
+                </span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <span class="px-2 py-1 text-xs font-medium rounded-full ${getDecisionBadgeClass(entry.decision)}">
+                    ${getDecisionLabel(entry.decision)}
+                </span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                ${entry.risk_score !== null ? entry.risk_score : '--'}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                ${entry.transaction_type || '--'}
+            </td>
+            <td class="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">
+                ${entry.details || '--'}
+            </td>
+        </tr>
+    `).join('');
+
+        // Show/hide load more button
+        hasMore = data.has_more || false;
+        const loadMoreContainer = document.getElementById('load-more-container');
+        if (hasMore) {
+            loadMoreContainer.classList.remove('hidden');
+        } else {
+            loadMoreContainer.classList.add('hidden');
+        }
+    }
+
+    function updateStatistics(data) {
+        const entries = data.entries || [];
+
+        document.getElementById('stat-total').textContent = entries.length;
+        document.getElementById('stat-allowed').textContent = entries.filter(e => e.decision === 1).length;
+        document.getElementById('stat-blocked').textContent = entries.filter(e => e.decision === 0).length;
+        document.getElementById('stat-frozen').textContent = entries.filter(e => e.decision === 2).length;
+    }
+
+    function getDecisionLabel(decision) {
+        switch (decision) {
+            case 0: return 'BLOCKED';
+            case 1: return 'ALLOWED';
+            case 2: return 'FROZEN';
+            default: return 'UNKNOWN';
+        }
+    }
+
+    function getDecisionBadgeClass(decision) {
+        switch (decision) {
+            case 0: return 'bg-red-100 text-red-700';
+            case 1: return 'bg-green-100 text-green-700';
+            case 2: return 'bg-orange-100 text-orange-700';
+            default: return 'bg-gray-100 text-gray-700';
+        }
+    }
+
+    function formatTimestamp(timestamp) {
+        if (!timestamp) return '--';
+        const date = new Date(timestamp);
+        return date.toLocaleString();
+    }
+
+    async function loadMore() {
+        const source = document.getElementById('filter-source').value;
+        const decision = document.getElementById('filter-decision').value;
+        currentOffset += currentLimit;
+
+        try {
+            const params = new URLSearchParams({
+                limit: currentLimit,
+                offset: currentOffset
+            });
+
+            if (source !== 'all') {
+                params.append('source', source);
+            }
+            if (decision !== 'all') {
+                params.append('decision', decision);
+            }
+
+            const response = await fetch(`/api/audit/log?${params}`);
+            const data = await response.json();
+
+            if (response.ok && data.entries && data.entries.length > 0) {
+                appendAuditEntries(data.entries);
+                hasMore = data.has_more || false;
+
+                const loadMoreContainer = document.getElementById('load-more-container');
+                if (!hasMore) {
+                    loadMoreContainer.classList.add('hidden');
+                }
+            } else {
+                hasMore = false;
+                document.getElementById('load-more-container').classList.add('hidden');
+            }
+        } catch (error) {
+            console.error('Error loading more audit entries:', error);
+        }
+    }
+
+    function appendAuditEntries(entries) {
+        const tbody = document.getElementById('audit-table-body');
+
+        // Remove "no entries" row if present
+        const noEntriesRow = tbody.querySelector('td[colspan="6"]');
+        if (noEntriesRow) {
+            tbody.innerHTML = '';
+        }
+
+        entries.forEach(entry => {
+            const row = document.createElement('tr');
+            row.className = 'hover:bg-gray-50';
+            row.innerHTML = `
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                ${formatTimestamp(entry.timestamp)}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <span class="px-2 py-1 text-xs font-medium rounded-full ${entry.source === 'onchain' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'}">
+                    ${entry.source === 'onchain' ? 'On-Chain' : 'Off-Chain'}
+                </span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <span class="px-2 py-1 text-xs font-medium rounded-full ${getDecisionBadgeClass(entry.decision)}">
+                    ${getDecisionLabel(entry.decision)}
+                </span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                ${entry.risk_score !== null ? entry.risk_score : '--'}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                ${entry.transaction_type || '--'}
+            </td>
+            <td class="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">
+                ${entry.details || '--'}
+            </td>
+        `;
+            tbody.appendChild(row);
+        });
+    }
+
+    function showError(message) {
+        const tbody = document.getElementById('audit-table-body');
+        tbody.innerHTML = `
+        <tr>
+            <td colspan="6" class="px-6 py-12 text-center text-red-500">
+                ${message}
+            </td>
+        </tr>
+    `;
+    }
+
+    // Load audit log on page load
+    document.addEventListener('DOMContentLoaded', loadAuditLog);
+</script>
+{% endblock %}

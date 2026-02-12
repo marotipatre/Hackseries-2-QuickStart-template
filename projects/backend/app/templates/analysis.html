@@ -1,0 +1,305 @@
+{% extends "base.html" %}
+
+{% block title %}AI Analysis - ChainGuardian{% endblock %}
+
+{% block content %}
+<div class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-900 mb-2">AI Transaction Analysis</h1>
+    <p class="text-gray-600">Analyze DeFi transactions with our AI-powered risk engine</p>
+</div>
+
+<!-- Analysis Form -->
+<div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+    <h2 class="text-xl font-semibold text-gray-900 mb-6">Analyze Transaction</h2>
+
+    <form id="analysis-form" onsubmit="analyzeTransaction(event)">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div>
+                <label for="transaction-type" class="block text-sm font-medium text-gray-700 mb-2">
+                    Transaction Type
+                </label>
+                <select id="transaction-type" name="transaction_type"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    required>
+                    <option value="">Select type...</option>
+                    <option value="transfer">Transfer</option>
+                    <option value="swap">Swap</option>
+                    <option value="liquidity">Liquidity Provision</option>
+                    <option value="staking">Staking</option>
+                    <option value="lending">Lending/Borrowing</option>
+                    <option value="yield">Yield Farming</option>
+                    <option value="nft">NFT Transaction</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+
+            <div>
+                <label for="amount" class="block text-sm font-medium text-gray-700 mb-2">
+                    Amount
+                </label>
+                <input type="number" id="amount" name="amount" placeholder="0.00" step="0.000001" min="0"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    required>
+            </div>
+
+            <div>
+                <label for="asset" class="block text-sm font-medium text-gray-700 mb-2">
+                    Asset/Token
+                </label>
+                <input type="text" id="asset" name="asset" placeholder="e.g., ALGO, USDC, USDT"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    required>
+            </div>
+
+            <div>
+                <label for="recipient" class="block text-sm font-medium text-gray-700 mb-2">
+                    Recipient Address / Protocol
+                </label>
+                <input type="text" id="recipient" name="recipient" placeholder="Wallet address or protocol name"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    required>
+            </div>
+
+            <div>
+                <label for="protocol" class="block text-sm font-medium text-gray-700 mb-2">
+                    DeFi Protocol (if applicable)
+                </label>
+                <input type="text" id="protocol" name="protocol" placeholder="e.g., Tinyman, Pact, Yieldly"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            </div>
+
+            <div>
+                <label for="network" class="block text-sm font-medium text-gray-700 mb-2">
+                    Network
+                </label>
+                <select id="network" name="network"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <option value="testnet">Algorand TestNet</option>
+                    <option value="mainnet">Algorand MainNet</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="mb-6">
+            <label for="notes" class="block text-sm font-medium text-gray-700 mb-2">
+                Additional Notes (Optional)
+            </label>
+            <textarea id="notes" name="notes" rows="3" placeholder="Any additional context about this transaction..."
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"></textarea>
+        </div>
+
+        <button type="submit" id="analyze-btn"
+            class="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed">
+            Analyze Transaction
+        </button>
+    </form>
+</div>
+
+<!-- Analysis Results -->
+<div id="analysis-results" class="bg-white rounded-xl shadow-lg p-6 mb-8 hidden">
+    <h2 class="text-xl font-semibold text-gray-900 mb-6">Analysis Results</h2>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        <!-- Risk Score -->
+        <div class="bg-gray-50 rounded-lg p-4 text-center">
+            <p class="text-sm text-gray-600 mb-2">Risk Score</p>
+            <span id="result-risk-score" class="text-4xl font-bold text-gray-900">--</span>
+            <div class="mt-3 bg-gray-200 rounded-full h-2">
+                <div id="result-risk-bar" class="risk-bar h-2 rounded-full bg-blue-500" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <!-- Recommendation -->
+        <div class="bg-gray-50 rounded-lg p-4 text-center">
+            <p class="text-sm text-gray-600 mb-2">Recommendation</p>
+            <span id="result-recommendation" class="text-2xl font-bold">--</span>
+        </div>
+
+        <!-- Confidence -->
+        <div class="bg-gray-50 rounded-lg p-4 text-center">
+            <p class="text-sm text-gray-600 mb-2">Confidence</p>
+            <span id="result-confidence" class="text-2xl font-bold text-gray-900">--</span>
+        </div>
+    </div>
+
+    <!-- AI Reasoning -->
+    <div class="mb-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-3">AI Reasoning</h3>
+        <div id="result-reasoning" class="bg-gray-50 rounded-lg p-4 text-gray-700">
+            --
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="flex space-x-4">
+        <button id="execute-btn" onclick="executeTransaction()"
+            class="flex-1 bg-green-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-green-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled>
+            Execute Transaction
+        </button>
+        <button onclick="resetAnalysis()"
+            class="flex-1 bg-gray-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-gray-700 transition">
+            Reset
+        </button>
+    </div>
+</div>
+
+<!-- AI Model Info -->
+<div class="bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-xl shadow-lg p-6">
+    <h3 class="text-lg font-semibold mb-4">AI Model Information</h3>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+            <p class="text-sm text-purple-200">Model</p>
+            <p class="font-semibold">neuralbase/nemotron-3-nano-30b-a3b</p>
+        </div>
+        <div>
+            <p class="text-sm text-purple-200">Provider</p>
+            <p class="font-semibold">OpenRouter API</p>
+        </div>
+        <div>
+            <p class="text-sm text-purple-200">Analysis Type</p>
+            <p class="font-semibold">DeFi Security & Risk Assessment</p>
+        </div>
+        <div>
+            <p class="text-sm text-purple-200">Response Format</p>
+            <p class="font-semibold">Structured JSON</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentAnalysis = null;
+
+    async function analyzeTransaction(event) {
+        event.preventDefault();
+
+        const form = event.target;
+        const formData = new FormData(form);
+
+        const data = {
+            transaction_type: formData.get('transaction_type'),
+            amount: parseFloat(formData.get('amount')),
+            asset: formData.get('asset'),
+            recipient: formData.get('recipient'),
+            protocol: formData.get('protocol'),
+            network: formData.get('network'),
+            notes: formData.get('notes')
+        };
+
+        const btn = document.getElementById('analyze-btn');
+        btn.disabled = true;
+        btn.textContent = 'Analyzing...';
+
+        try {
+            const response = await fetch('/api/analysis/analyze', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            const result = await response.json();
+
+            if (response.ok) {
+                currentAnalysis = result;
+                displayResults(result);
+            } else {
+                alert('Analysis failed: ' + (result.detail || 'Unknown error'));
+            }
+        } catch (error) {
+            console.error('Error analyzing transaction:', error);
+            alert('Failed to analyze transaction');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'Analyze Transaction';
+        }
+    }
+
+    function displayResults(result) {
+        document.getElementById('analysis-results').classList.remove('hidden');
+
+        // Risk score
+        document.getElementById('result-risk-score').textContent = result.risk_score;
+        document.getElementById('result-risk-bar').style.width = `${result.risk_score}%`;
+
+        // Update risk bar color
+        const riskBar = document.getElementById('result-risk-bar');
+        if (result.risk_score >= 80) {
+            riskBar.className = 'risk-bar h-2 rounded-full bg-red-500';
+        } else if (result.risk_score >= 60) {
+            riskBar.className = 'risk-bar h-2 rounded-full bg-orange-500';
+        } else if (result.risk_score >= 40) {
+            riskBar.className = 'risk-bar h-2 rounded-full bg-yellow-500';
+        } else {
+            riskBar.className = 'risk-bar h-2 rounded-full bg-green-500';
+        }
+
+        // Recommendation
+        const recEl = document.getElementById('result-recommendation');
+        recEl.textContent = result.recommendation;
+        if (result.recommendation === 'ALLOW') {
+            recEl.className = 'text-2xl font-bold text-green-600';
+        } else if (result.recommendation === 'WARN') {
+            recEl.className = 'text-2xl font-bold text-yellow-600';
+        } else {
+            recEl.className = 'text-2xl font-bold text-red-600';
+        }
+
+        // Confidence
+        document.getElementById('result-confidence').textContent = `${result.confidence}%`;
+
+        // Reasoning
+        document.getElementById('result-reasoning').textContent = result.reasoning || 'No reasoning provided';
+
+        // Enable/disable execute button based on recommendation
+        const executeBtn = document.getElementById('execute-btn');
+        if (result.recommendation === 'ALLOW') {
+            executeBtn.disabled = false;
+            executeBtn.className = 'flex-1 bg-green-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-green-700 transition';
+        } else {
+            executeBtn.disabled = true;
+            executeBtn.className = 'flex-1 bg-gray-400 text-white py-3 px-6 rounded-lg font-semibold cursor-not-allowed';
+        }
+    }
+
+    async function executeTransaction() {
+        if (!currentAnalysis) {
+            alert('No analysis result available');
+            return;
+        }
+
+        if (!confirm('Are you sure you want to execute this transaction?')) {
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/vault/check-transaction', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    risk_score: currentAnalysis.risk_score,
+                    transaction_data: currentAnalysis.transaction_data
+                })
+            });
+            const result = await response.json();
+
+            if (response.ok) {
+                if (result.allowed) {
+                    alert('Transaction allowed by smart contract!');
+                } else {
+                    alert('Transaction blocked by smart contract. Reason: ' + (result.reason || 'Risk score exceeds threshold'));
+                }
+            } else {
+                alert('Failed to check transaction: ' + (result.detail || 'Unknown error'));
+            }
+        } catch (error) {
+            console.error('Error executing transaction:', error);
+            alert('Failed to execute transaction');
+        }
+    }
+
+    function resetAnalysis() {
+        document.getElementById('analysis-form').reset();
+        document.getElementById('analysis-results').classList.add('hidden');
+        currentAnalysis = null;
+    }
+</script>
+{% endblock %}

@@ -8,8 +8,13 @@ import MintNFT from './components/MintNFT'
 import CreateASA from './components/CreateASA'
 import AssetOptIn from './components/AssetOptIn'
 import Bank from './components/Bank'
+// ChainGuardian Components
+import { RiskDashboard } from './components/RiskDashboard'
+import { GuardianVault } from './components/GuardianVault'
+import { AIAnalysisPanel } from './components/AIAnalysisPanel'
+import { AuditLog } from './components/AuditLog'
 
-interface HomeProps {}
+interface HomeProps { }
 
 const Home: React.FC<HomeProps> = () => {
   const [openWalletModal, setOpenWalletModal] = useState<boolean>(false)
@@ -115,6 +120,49 @@ const Home: React.FC<HomeProps> = () => {
                 </div>
               </div>
             </div>
+          </div>
+
+          {/* ChainGuardian Section */}
+          <div className="divider">ChainGuardian - AI-Powered DeFi Risk Management</div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="card bg-gradient-to-br from-violet-600 to-purple-600 text-white shadow-xl">
+              <div className="card-body">
+                <h2 className="card-title flex items-center gap-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  </svg>
+                  Risk Dashboard
+                </h2>
+                <p>View your vault status, risk score, and quick actions.</p>
+                <div className="card-actions justify-end">
+                  <button className="btn btn-outline" disabled={!activeAddress}>View Dashboard</button>
+                </div>
+              </div>
+            </div>
+
+            <div className="card bg-gradient-to-br from-cyan-600 to-blue-600 text-white shadow-xl">
+              <div className="card-body">
+                <h2 className="card-title flex items-center gap-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                  </svg>
+                  AI Analysis
+                </h2>
+                <p>Analyze transactions using AI-powered risk assessment.</p>
+                <div className="card-actions justify-end">
+                  <button className="btn btn-outline" disabled={!activeAddress}>Analyze Transaction</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* ChainGuardian Components */}
+          <div className="space-y-6 mt-6">
+            <RiskDashboard />
+            <GuardianVault />
+            <AIAnalysisPanel />
+            <AuditLog />
           </div>
         </div>
       </div>

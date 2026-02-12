@@ -1,0 +1,45 @@
+[tool.poetry]
+name = "chainguardian-backend"
+version = "0.1.0"
+description = "AI-Powered DeFi Risk & Compliance Assistant Backend"
+authors = ["ChainGuardian Team"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+fastapi = "^0.109.0"
+uvicorn = {extras = ["standard"], version = "^0.27.0"}
+pydantic = "^2.5.3"
+pydantic-settings = "^2.1.0"
+httpx = "^0.26.0"
+algokit-utils = "^7.0.0"
+algosdk = "^3.0.0"
+sqlalchemy = "^2.0.25"
+aiosqlite = "^0.19.0"
+python-multipart = "^0.0.6"
+python-dotenv = "^1.0.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.4.4"
+pytest-asyncio = "^0.23.3"
+black = "^24.1.1"
+ruff = "^0.1.14"
+mypy = "^1.8.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 100
+target-version = ['py312']
+
+[tool.ruff]
+line-length = 100
+select = ["E", "F", "I", "N", "W"]
+ignore = ["E501"]
+
+[tool.mypy]
+python_version = "3.12"
+warn_return_any = true
+warn_unused_configs = true
