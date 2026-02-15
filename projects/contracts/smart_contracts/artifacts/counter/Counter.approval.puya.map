@@ -136,8 +136,7 @@
       ]
     },
     "46": {
-      "error": "OnCompletion must be NoOp && can only call when not creating",
-      "op": "assert // OnCompletion must be NoOp && can only call when not creating",
+      "op": "assert",
       "stack_out": []
     },
     "47": {
@@ -195,8 +194,7 @@
       ]
     },
     "57": {
-      "error": "OnCompletion must be NoOp && can only call when creating",
-      "op": "return // on error: OnCompletion must be NoOp && can only call when creating",
+      "op": "return",
       "defined_out": [],
       "stack_out": []
     },

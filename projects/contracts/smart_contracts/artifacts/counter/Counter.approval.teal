@@ -30,7 +30,7 @@ main_incr_counter_route@5:
     !
     txn ApplicationID
     &&
-    assert // OnCompletion must be NoOp && can only call when not creating
+    assert
     b incr_counter
 
 main___algopy_default_create@7:
@@ -39,7 +39,7 @@ main___algopy_default_create@7:
     txn ApplicationID
     !
     &&
-    return // on error: OnCompletion must be NoOp && can only call when creating
+    return
 
 
 // smart_contracts.counter.contract.Counter.incr_counter[routing]() -> void:

@@ -119,49 +119,40 @@ const AppCalls = ({ openModal, setModalState }: AppCallsInterface) => {
   }
 
   return (
-    <dialog id="appcalls_modal" className={`modal ${openModal ? 'modal-open' : ''} bg-slate-200`}>
-      <form method="dialog" className="modal-box">
-        <h3 className="font-bold text-lg">Counter Contract</h3>
-        <br />
+    <dialog id="appcalls_modal" className={`modal ${openModal ? 'modal-open' : ''}`}>
+      <form method="dialog" className="modal-box bg-white shadow-2xl rounded-2xl p-8">
+        <h3 className="font-bold text-2xl mb-2 text-apple-dark">Campaign Tracker</h3>
+        <p className="text-apple-subtext mb-6">Real-time on-chain engagement metrics.</p>
         
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-6">
           {appId && (
-            <div className="alert alert-info flex flex-col gap-1">
-              <span>Current App ID: {appId}</span>
-              <span>Current Count: {currentCount}</span>
+            <div className="flex items-center justify-between p-6 bg-gray-50 rounded-2xl border border-gray-100">
+              <div className="flex flex-col">
+                <span className="text-sm text-apple-subtext font-medium mb-1">Total Interactions</span>
+                <span className="text-4xl font-bold text-apple-blue">{currentCount}</span>
+              </div>
+              <div className="text-right">
+                <span className="text-xs text-gray-400 block mb-1">Contract ID</span>
+                <span className="text-xs font-mono text-gray-600 bg-gray-200 px-2 py-1 rounded">{appId}</span>
+              </div>
             </div>
           )}
           
-          {/*
-          <div className="flex flex-col gap-2">
-            <button 
-              className={`btn btn-primary ${deploying ? 'loading' : ''}`}
-              onClick={deployContract}
-              disabled={deploying || loading}
-            >
-              {deploying ? 'Deploying...' : 'Deploy Contract'}
-            </button>
-            <p className="text-sm">Run this once to deploy the contract</p>
-          </div>
-          
-          <div className="divider">OR</div>
-          */}
-          
-          <div className="flex flex-col gap-2">
-            <button 
-              className={`btn btn-secondary ${loading ? 'loading' : ''}`}
-              onClick={incrementCounter}
+          <div className="flex flex-col gap-3">
+             <button 
+              className={`btn w-full bg-apple-dark text-white hover:bg-black border-none rounded-full h-12 normal-case font-medium text-lg ${loading ? 'loading' : ''}`}
+              onClick={(e) => { e.preventDefault(); void incrementCounter() }}
               disabled={loading || !appId}
             >
-              {loading ? 'Processing...' : 'Increment Counter'}
+              {loading ? 'Recording...' : 'Record Interaction'}
             </button>
-            <p className="text-sm">Requires deployed contract</p>
+            <p className="text-xs text-center text-apple-subtext">This will create a verified transaction on the Algorand blockchain.</p>
           </div>
           
-          <div className="modal-action">
+          <div className="modal-action mt-2">
             <button 
-              className="btn" 
-              onClick={() => setModalState(false)}
+              className="btn bg-gray-100 text-apple-dark hover:bg-gray-200 border-none rounded-full normal-case font-medium min-w-[80px]" 
+              onClick={(e) => { e.preventDefault(); setModalState(false) }}
               disabled={loading}
             >
               Close

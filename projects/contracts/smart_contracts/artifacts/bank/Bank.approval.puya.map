@@ -87,8 +87,7 @@
       ]
     },
     "42": {
-      "error": "OnCompletion must be NoOp",
-      "op": "assert // OnCompletion must be NoOp",
+      "op": "assert",
       "stack_out": []
     },
     "43": {
@@ -187,8 +186,7 @@
       ]
     },
     "75": {
-      "error": "OnCompletion must be NoOp && can only call when creating",
-      "op": "return // on error: OnCompletion must be NoOp && can only call when creating",
+      "op": "return",
       "defined_out": [],
       "stack_out": []
     },
@@ -230,7 +228,8 @@
       ]
     },
     "81": {
-      "op": "extract_uint16",
+      "error": "invalid array length header",
+      "op": "extract_uint16 // on error: invalid array length header",
       "defined_out": [
         "aggregate%array_length%0#0",
         "tmp%0#0"
@@ -241,7 +240,7 @@
       ]
     },
     "82": {
-      "op": "pushint 2 // 2",
+      "op": "pushint 2",
       "defined_out": [
         "2",
         "aggregate%array_length%0#0",
@@ -292,8 +291,8 @@
       ]
     },
     "88": {
-      "error": "invalid number of bytes for (len+utf8[])",
-      "op": "assert // invalid number of bytes for (len+utf8[])",
+      "error": "invalid number of bytes for arc4.dynamic_array<arc4.uint8>",
+      "op": "assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>",
       "stack_out": []
     },
     "89": {
@@ -986,7 +985,7 @@
       ]
     },
     "169": {
-      "op": "pushint 8 // 8",
+      "op": "pushint 8",
       "defined_out": [
         "8",
         "len%0#0",
@@ -1010,8 +1009,8 @@
       ]
     },
     "172": {
-      "error": "invalid number of bytes for uint64",
-      "op": "assert // invalid number of bytes for uint64",
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
       "stack_out": [
         "tmp%0#0"
       ]

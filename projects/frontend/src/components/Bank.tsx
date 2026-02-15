@@ -287,38 +287,38 @@ const Bank = ({ openModal, closeModal }: BankProps) => {
   }
 
   return (
-    <dialog id="bank_modal" className={`modal ${openModal ? 'modal-open' : ''} bg-slate-200`}>
-      <form method="dialog" className="modal-box max-w-3xl">
-        <h3 className="font-bold text-lg">Bank Contract</h3>
-        <div className="mt-2 flex flex-col gap-4">
+    <dialog id="bank_modal" className={`modal ${openModal ? 'modal-open' : ''}`}>
+      <form method="dialog" className="modal-box max-w-3xl bg-white shadow-2xl rounded-2xl p-8">
+        <h3 className="font-bold text-2xl mb-6 text-apple-dark">Fundraising Vault</h3>
+        <div className="mt-2 flex flex-col gap-6">
           <div className="flex flex-col gap-2">
-            <label className="text-sm">Application ID</label>
-            <input className="input input-bordered" type="number" value={appId} onChange={(e) => setAppId(e.target.value === '' ? '' : Number(e.target.value))} placeholder="Enter deployed Bank App ID" />
+            <label className="text-sm font-medium text-apple-subtext">Application ID</label>
+            <input className="input input-bordered bg-gray-50 border-gray-200 focus:outline-none focus:ring-2 focus:ring-apple-blue/50 rounded-xl" type="number" value={appId} onChange={(e) => setAppId(e.target.value === '' ? '' : Number(e.target.value))} placeholder="Enter deployed Bank App ID" />
             {appAddress && (
-              <div className="alert alert-info text-xs break-all">App Address: {appAddress}</div>
+              <div className="alert bg-blue-50 text-blue-800 text-xs break-all border-none rounded-xl">App Address: {appAddress}</div>
             )}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="flex flex-col gap-2 p-4 rounded-lg bg-white">
-              <div className="font-semibold">Deploy (optional)</div>
-              <button className={`btn btn-accent ${deploying ? 'loading' : ''}`} disabled={deploying || !activeAddress} onClick={(e) => { e.preventDefault(); void deployContract() }}>Deploy Bank</button>
-              <p className="text-xs text-gray-500">Or enter an existing App ID above.</p>
+            <div className="flex flex-col gap-2 p-4 rounded-xl border border-gray-100 bg-white shadow-sm">
+              <div className="font-semibold text-apple-dark">Deploy (optional)</div>
+              <button className={`btn bg-apple-dark text-white hover:bg-black border-none rounded-full normal-case ${deploying ? 'loading' : ''}`} disabled={deploying || !activeAddress} onClick={(e) => { e.preventDefault(); void deployContract() }}>Deploy Bank</button>
+              <p className="text-xs text-gray-400">Or enter an existing App ID above.</p>
             </div>
-            <div className="flex flex-col gap-2 p-4 rounded-lg bg-white">
-              <div className="font-semibold">Deposit</div>
-              <input className="input input-bordered" placeholder="Memo (optional)" value={memo} onChange={(e) => setMemo(e.target.value)} />
-              <input className="input input-bordered" placeholder="Amount (Algos)" type="number" step="0.000001" value={depositAmount} onChange={(e) => setDepositAmount(e.target.value)} />
-              <button className={`btn btn-primary ${loading ? 'loading' : ''}`} disabled={loading || !activeAddress || !appId} onClick={(e) => { e.preventDefault(); void deposit() }}>Deposit</button>
+            <div className="flex flex-col gap-2 p-4 rounded-xl border border-gray-100 bg-white shadow-sm">
+              <div className="font-semibold text-apple-dark">Deposit</div>
+              <input className="input input-bordered bg-gray-50 border-gray-200 rounded-lg h-10 min-h-0" placeholder="Memo (optional)" value={memo} onChange={(e) => setMemo(e.target.value)} />
+              <input className="input input-bordered bg-gray-50 border-gray-200 rounded-lg h-10 min-h-0" placeholder="Amount (Algos)" type="number" step="0.000001" value={depositAmount} onChange={(e) => setDepositAmount(e.target.value)} />
+              <button className={`btn bg-apple-blue text-white hover:bg-blue-600 border-none rounded-full normal-case btn-sm h-10 ${loading ? 'loading' : ''}`} disabled={loading || !activeAddress || !appId} onClick={(e) => { e.preventDefault(); void deposit() }}>Deposit</button>
             </div>
-            <div className="flex flex-col gap-2 p-4 rounded-lg bg-white">
-              <div className="font-semibold">Withdraw</div>
-              <input className="input input-bordered" placeholder="Amount (Algos)" type="number" step="0.000001" value={withdrawAmount} onChange={(e) => setWithdrawAmount(e.target.value)} />
-              <button className={`btn btn-secondary ${loading ? 'loading' : ''}`} disabled={loading || !activeAddress || !appId} onClick={(e) => { e.preventDefault(); void withdraw() }}>Withdraw</button>
+            <div className="flex flex-col gap-2 p-4 rounded-xl border border-gray-100 bg-white shadow-sm">
+              <div className="font-semibold text-apple-dark">Withdraw</div>
+              <input className="input input-bordered bg-gray-50 border-gray-200 rounded-lg h-10 min-h-0" placeholder="Amount (Algos)" type="number" step="0.000001" value={withdrawAmount} onChange={(e) => setWithdrawAmount(e.target.value)} />
+              <button className={`btn bg-gray-100 text-apple-dark hover:bg-gray-200 border-none rounded-full normal-case btn-sm h-10 ${loading ? 'loading' : ''}`} disabled={loading || !activeAddress || !appId} onClick={(e) => { e.preventDefault(); void withdraw() }}>Withdraw</button>
             </div>
           </div>
 
-          <div className="divider">Statements</div>
+          <div className="divider text-apple-subtext text-xs font-semibold uppercase tracking-wider">Statements</div>
           <div className="max-h-56 overflow-auto bg-white rounded-lg p-2">
             {statements.length === 0 ? (
               <div className="text-sm text-gray-500">No transactions found.</div>

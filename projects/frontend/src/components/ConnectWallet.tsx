@@ -1,5 +1,5 @@
 import { useWallet, Wallet, WalletId } from '@txnlab/use-wallet-react'
-import Account from './Account'
+import Account from '../boilerplate/Account'
 
 interface ConnectWalletInterface {
   openModal: boolean
@@ -28,7 +28,7 @@ const ConnectWallet = ({ openModal, closeModal }: ConnectWalletInterface) => {
             wallets?.map((wallet) => (
               <button
                 data-test-id={`${wallet.id}-connect`}
-                className="btn border-teal-800 border-1  m-2"
+                className="btn bg-white border border-gray-200 hover:bg-gray-50 text-apple-dark m-2 shadow-sm normal-case font-medium"
                 key={`provider-${wallet.id}`}
                 onClick={() => {
                   return wallet.connect()

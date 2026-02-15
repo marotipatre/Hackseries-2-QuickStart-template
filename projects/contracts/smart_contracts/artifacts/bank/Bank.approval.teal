@@ -20,7 +20,7 @@ main_after_if_else@2:
     bz main___algopy_default_create@11
     txn OnCompletion
     !
-    assert // OnCompletion must be NoOp
+    assert
     txn ApplicationID
     assert
     pushbytess 0x9f597c32 0x31214176 // method "deposit(string,pay)uint64", method "withdraw(uint64)uint64"
@@ -34,7 +34,7 @@ main___algopy_default_create@11:
     txn ApplicationID
     !
     &&
-    return // on error: OnCompletion must be NoOp && can only call when creating
+    return
 
 
 // smart_contracts.bank.contract.Bank.deposit[routing]() -> void:
@@ -44,13 +44,13 @@ deposit:
     txna ApplicationArgs 1
     dup
     intc_1 // 0
-    extract_uint16
-    pushint 2 // 2
+    extract_uint16 // on error: invalid array length header
+    pushint 2
     +
     swap
     len
     ==
-    assert // invalid number of bytes for (len+utf8[])
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     txn GroupIndex
     intc_0 // 1
     -
@@ -140,9 +140,9 @@ withdraw:
     txna ApplicationArgs 1
     dup
     len
-    pushint 8 // 8
+    pushint 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
     // smart_contracts/bank/contract.py:31
     // current, exists = self.deposits.maybe(Txn.sender)
